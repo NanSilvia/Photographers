@@ -1,0 +1,20 @@
+.portCardCl {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.portBodyCl {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-basis: auto;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.portButCl {
+    display: flex;
+    justify-content: flex-start;
+}
