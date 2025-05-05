@@ -1,0 +1,9 @@
+{
+    "watch": ["src"],
+    "ext": "ts,json,js,jsx,html,css",
+    "ignore": ["node_modules", "dist"],
+    "exec": "ts-node src/server.ts",
+    "execMap": {
+        "ts": "ts-node"
+    }
+}

@@ -146,7 +146,7 @@ const usePhotographerStore = create<PhotographerStoreState>()(
                         set((state) => ({ 
                             photographers: data, 
                             currentPage: state.currentPage + 1, 
-                            hasMore: photog.length > 0, 
+                            hasMore: photog.length !== 0, 
                             loading: false 
                         }));
                         console.log("After fetch - currentPage:", get().currentPage);

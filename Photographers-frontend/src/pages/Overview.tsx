@@ -534,7 +534,7 @@ function Overview() {
         if (node) observerRef.current.observe(node);
     }, [loading, hasMore, fetchMore]);
 
-    if (photographers.length === 0 && !loading) {
+    if (photographers.length === 0 && !loading && hasMore) {
         fetchMore().finally(() => setInitialLoad(true));
     } else if (photographers.length > 0 && !initialLoad) {
         setInitialLoad(true);

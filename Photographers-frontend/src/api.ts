@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export interface Photographer {
+  id: string;
   name: string;
   birth: Date;
   death: Date | null;
@@ -8,7 +9,7 @@ export interface Photographer {
   description: string;
 }
 
-const API_URL = "http://localhost:5000"; // Base URL for backend API
+export const API_URL = "http://localhost:5000"; // Base URL for backend API
 
 // Get all photographers
 export const getPhotographers = async (): Promise<Photographer[]> => {
