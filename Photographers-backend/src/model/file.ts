@@ -1,4 +1,5 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "./user";
 
 @Entity()
 export class File {
@@ -13,4 +14,8 @@ export class File {
 
     @Column("mediumblob")
     buffer: Buffer
+
+    @ManyToOne(()=>User, (user) => user.files)
+    user: User
+
 }

@@ -130,7 +130,7 @@
 import axios from 'axios';
 import Photographer from '../model/Photographer';
 
-const API_URL = 'http://localhost:5000/photographers';
+const API_URL = '/api/photographers';
 const PhotographersApi = {
     // getAll: async (): Promise<Photographer[]> => {
     //     const response = await axios.get(API_URL);
@@ -143,7 +143,8 @@ const PhotographersApi = {
 
     getMore: async (currentPage: number, filter: boolean): Promise<Photographer[]> => {
         const response = await axios.get(API_URL, {
-            params:{pageNr:currentPage, alive:filter}
+            params:{pageNr:currentPage, alive:filter},
+            withCredentials: true,
         });
         return response.data.map((p: any) => ({
             ...p,
@@ -153,7 +154,9 @@ const PhotographersApi = {
     },
 
     add: async (photographer: Omit<Photographer, 'id'>) => {
-        const response = await axios.post(API_URL, photographer);
+        const response = await axios.post(API_URL, photographer, {
+            withCredentials: true,
+        });
         return {
             birth: new Date(response.data.birth),
             death: response.data.death ? new Date(response.data.death) : null,
@@ -165,7 +168,9 @@ const PhotographersApi = {
     },
 
     update: async (photographer: Photographer) => {
-        const response = await axios.put(`${API_URL}/${photographer.id}`, photographer);
+        const response = await axios.put(`${API_URL}/${photographer.id}`, photographer, {
+            withCredentials: true,
+        });
         return {
             birth: new Date(response.data.birth),
             death: response.data.death ? new Date(response.data.death) : null,
@@ -177,12 +182,16 @@ const PhotographersApi = {
     },
 
     delete: async (id: number) => {
-        await axios.delete(`${API_URL}/${id}`);
+        await axios.delete(`${API_URL}/${id}`, {
+            withCredentials: true,
+        });
     },
 
     getById: async (id: number): Promise<Photographer | undefined> => {
         try {
-            const response = await axios.get(`${API_URL}/${id}`);
+            const response = await axios.get(`${API_URL}/${id}`, {
+                withCredentials: true,
+            });
             if (response.data) {
                 return {
                     ...response.data,

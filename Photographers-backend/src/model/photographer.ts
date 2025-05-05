@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Photo } from "./photo";
+import { User } from "./user";
 
 @Entity()
 export class Photographer {
@@ -31,4 +32,9 @@ export class Photographer {
 
     })
     photos: Photo[]
+
+    @ManyToOne(() => User, (user => user.photographers), {
+        eager: true, //  to always fetch the user when displaying photographers
+    })
+    user: User
 }

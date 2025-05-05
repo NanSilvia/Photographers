@@ -51,6 +51,7 @@ import PhotographersApi from '../service/PhotographersApi';
 import Photographer from '../model/Photographer';
 import useConnectionStatusStore from './connectionStatus';
 import broadcastApi from '../service/BroadcastApi';
+import { AxiosError } from 'axios';
 
 interface Operation {
     type: string,
@@ -138,7 +139,6 @@ const usePhotographerStore = create<PhotographerStoreState>()(
                 handleClose: () => set({ opened: false, selectedPhotographer: null }),
 
                 fetchMore: async () => {
-                    console.log("Before fetch - currentPage:", get().currentPage);
                     try {
                         set(() => ({ loading: true }));
                         const photog = await PhotographersApi.getMore(get().currentPage, get().filterAlive);
@@ -149,8 +149,11 @@ const usePhotographerStore = create<PhotographerStoreState>()(
                             hasMore: photog.length !== 0, 
                             loading: false 
                         }));
-                        console.log("After fetch - currentPage:", get().currentPage);
                     } catch (error) {
+                        if (error instanceof AxiosError) {
+                            set(() => ({ hasMore: false, loading: false }));
+                            return;
+                        }
                         console.error('Error fetching photographers:', error);
                         set(() => ({ loading: false }));
                     }
@@ -164,7 +167,7 @@ const usePhotographerStore = create<PhotographerStoreState>()(
                         hasMore: true
                     }));
                     // Fetch first page after filter change
-                    get().fetchMore();
+                    await get().fetchMore();
                 },
 
                 addPhotographer: async (p) => {

@@ -4,30 +4,41 @@ import { Photographer } from "./photographer";
 //let photographers: Photographer[] = myPhotographers;
 // export const photographers = [];
 
-import { AppDatatSource } from "../databaseHelper/dataSource";
+import { AppDataSource } from "../databaseHelper/dataSource";
 import { IsNull, Not } from "typeorm";
+import { User } from "./user";
 
-const photographersRepo = AppDatatSource.getRepository(Photographer);
+const photographersRepo = AppDataSource.getRepository(Photographer);
 
 // Get all photographers
 export async function getAllPhotographers(): Promise<Photographer[]> {
     return await photographersRepo.find();
 }
 
-export async function getPhotographersByPage(pageNr: number, aliveOnly: boolean): Promise<Photographer[]> {
+export async function getPhotographersByPage(userId: number, pageNr: number, aliveOnly: boolean): Promise<Photographer[]> {
     return await photographersRepo.find({
         skip: pageNr * 8,
         take: 8,
-        where: aliveOnly ? {
-            death: IsNull(),
-        } : {},
+        where: {
+            user: {
+                id: userId,
+            },
+            ...(
+                aliveOnly ? {
+                    death: IsNull(),
+                } : {}
+            ),
+        },
     });
 }
 // Get a single photographer by ID
-export async function getPhotographerById(id: number): Promise<Photographer | null> {
+export async function getPhotographerById(userId: number, id: number): Promise<Photographer | null> {
     return await photographersRepo.findOne({
         where: {
             id,
+            user: {
+                id: userId,
+            },
         },
         relations: {
             photos: true,
@@ -61,8 +72,15 @@ export async function updatePhotographer(id: number, updatedData:Partial<Photogr
 }
 
 // Delete a photographer by ID
-export async function deletePhotographer(id: number):Promise<Photographer | null> {
-    const photographerToDelete = await photographersRepo.findOneBy({ id });
+export async function deletePhotographer(userId:number,id: number):Promise<Photographer | null> {
+    const photographerToDelete = await photographersRepo.findOne({
+        where: {
+            id,
+            user: {
+                id: userId,
+            },
+        },
+    });
     if (!photographerToDelete) return null;
     await photographersRepo.remove(photographerToDelete);
     return photographerToDelete;
