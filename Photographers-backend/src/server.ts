@@ -27,6 +27,8 @@ import { Session } from "./model/session";
 import { User } from "./model/user";
 import { hasRole } from "./middleware/authorization";
 import { logging } from "./middleware/logging";
+import { Log } from "./model/log";
+import { createQueryBuilder, QueryBuilder, SelectQueryBuilder } from "typeorm";
 
 const app = express();
 const sessionRepository = AppDataSource.getRepository(Session);
@@ -407,15 +409,6 @@ app.get(
   }
 );
 
-const PORT = 5000;
-AppDataSource.initialize().then(() => {
-  // Start the server
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-});
-export { connections };
-
 // authentication
 app.get("/authstatus", (req: Request, res: Response) => {
   //daca esxista userul
@@ -556,6 +549,37 @@ app.get("/users/me", async (req: Request, res: Response) => {
     password: undefined, // Exclude password from the response
   });
 });
+
+let suspiciousUsers: {id: number, count: number}[] = [];
+const MINIMUM_REQUESTS_TO_BE_SUSPICIOUS = 50;
+const monitorThread = () => {
+    const logRepo = AppDataSource.getRepository(Log);
+    const query = logRepo
+        .createQueryBuilder("log")
+        .innerJoinAndSelect(User,'logUser', 'log.userId = logUser.id')
+        .where("logUser.role = :role", {role: "user"})
+        .where("timestamp > DATE_SUB(NOW(), INTERVAL 1 MINUTE)")
+        .groupBy("logUser.id")
+        .having(`count(logUser.id) > ${MINIMUM_REQUESTS_TO_BE_SUSPICIOUS}`)
+        .select("logUser.id, count(logUser.id) as count");
+    setInterval(async () => {
+        suspiciousUsers = await query.execute();
+    }, 60000);
+}
+
+app.get("/users/suspicious", hasRole("admin"), ( req: Request, res: Response) =>{
+    res.status(200).json(suspiciousUsers);
+});
+
+const PORT = 5000;
+AppDataSource.initialize().then(() => {
+  // Start the server
+  monitorThread();
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+});
+export { connections };
 
 // If you need to export the app for testing purposes
 export default app;

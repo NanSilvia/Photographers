@@ -12,7 +12,7 @@ export function logging() {
             action: req.method + " " + req.originalUrl,
             timestamp: new Date(),
             user: await AppDataSource.getRepository(User).findOneBy({
-                id: req.body.userId,
+                id: req.session.userId,
             }) ?? undefined,
         });
         next();
