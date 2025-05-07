@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
+import { faker } from '@faker-js/faker';
 
 //for auth
 import expressSession from "express-session";
@@ -550,6 +551,82 @@ app.get("/users/me", async (req: Request, res: Response) => {
   });
 });
 
+//ptr testare
+
+app.get("/tests/makeusers", async (req:Request, res: Response) =>{
+  const userRepo = AppDataSource.getRepository(User);
+  const photogRepo = AppDataSource.getRepository(Photographer);
+  const photoRepo = AppDataSource.getRepository(Photo);
+  const batchSize = 100;
+  const userBatch: Partial<User>[] = [];
+  const photographerBatch: Partial<Photographer>[] = [];
+  const photoBatch: Partial<Photo>[] = [];
+
+  for (let i = 1; i < 1000; i++) {
+    const user: Partial<User> = {
+      password: faker.string.hexadecimal({
+        length: {
+          min: 100,
+          max: 100
+        }
+      }),
+      username: faker.person.fullName(),
+      role: "user",
+    };
+    userBatch.push(user);
+
+    if (userBatch.length >= batchSize) {
+      const savedUsers = await userRepo.save(userBatch);
+      
+      for (const fullUser of savedUsers) {
+        for (let j = 0; j < 200; j++) {
+          const photographer: Partial<Photographer> = {
+            birth: faker.date.past(),
+            death: Math.random() > 0.5 ? faker.date.past() : undefined,
+            name: faker.person.fullName(),
+            description: faker.lorem.paragraph(),
+            profilepicUrl: faker.internet.url(),
+            user: fullUser,
+          };
+          photographerBatch.push(photographer);
+
+          if (photographerBatch.length >= batchSize) {
+            const savedPhotographers = await photogRepo.save(photographerBatch);
+            photographerBatch.length = 0;
+
+            for (let k = 0; k < 5; k++) {
+              const photo: Partial<Photo> = {
+                imageUrl: faker.internet.url(),
+                title: faker.lorem.sentence(),
+                description: faker.lorem.paragraph(),
+              };
+              photoBatch.push(photo);
+            }
+
+            if (photoBatch.length >= batchSize) {
+              await photoRepo.save(photoBatch);
+              photoBatch.length = 0;
+            }
+          }
+        }
+      }
+      userBatch.length = 0;
+    }
+  }
+
+  // Save any remaining items in batches
+  if (userBatch.length > 0) await userRepo.save(userBatch);
+  if (photographerBatch.length > 0) await photogRepo.save(photographerBatch);
+  if (photoBatch.length > 0) await photoRepo.save(photoBatch);
+  res.status(200).send("OK");
+})
+
+
+
+
+
+
+// thread
 let suspiciousUsers: {id: number, count: number}[] = [];
 const MINIMUM_REQUESTS_TO_BE_SUSPICIOUS = 50;
 const monitorThread = () => {
@@ -567,6 +644,7 @@ const monitorThread = () => {
     }, 60000);
 }
 
+
 app.get("/users/suspicious", hasRole("admin"), ( req: Request, res: Response) =>{
     res.status(200).json(suspiciousUsers);
 });
@@ -580,6 +658,7 @@ AppDataSource.initialize().then(() => {
   });
 });
 export { connections };
+
 
 // If you need to export the app for testing purposes
 export default app;
