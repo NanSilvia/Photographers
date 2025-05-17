@@ -1,6 +1,5 @@
 import { create } from "zustand"
 import Photo from "../model/Photo"
-import { API_URL } from "../api";
 
 interface PhotoStore{
     photos: Photo[];

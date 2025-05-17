@@ -14,6 +14,6 @@ export class Log {
     @Column("varchar", { length: 256 })
     action: string;
 
-    @Column("datetime")
+    @Column("timestamp")
     timestamp: Date;
 }

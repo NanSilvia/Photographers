@@ -4,14 +4,16 @@
   "scripts": {
     "test": "jest",
     "test:watch": "test --watchAll",
-    "start": "node server",
-    "dev": "npx tsx --watch src/server.ts"
+    "build": "npx tsc",
+    "dev": "npx tsx --watch src/server.ts",
+    "serve": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@faker-js/faker": "^9.7.0",
     "@types/express": "^5.0.1",
     "@types/multer": "^1.4.12",
     "bcrypt": "^5.1.1",
@@ -20,9 +22,8 @@
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "mssql": "^11.0.1",
     "multer": "^1.4.5-lts.2",
-    "mysql": "^2.18.1",
+    "pg": "^8.16.0",
     "sqlite3": "^5.1.7",
     "typeorm": "^0.3.22",
     "typescript": "^5.8.3",
@@ -32,7 +33,6 @@
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
-    "@faker-js/faker": "^9.7.0",
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.1",
     "@types/express-session": "^1.18.1",

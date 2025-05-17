@@ -487,7 +487,6 @@ import Charts from "../tests/Charts";
 
 import useConnectionStatusStore from "../stores/connectionStatus";
 import useUserStore from "../stores/UserStore";
-import { AxiosError } from "axios";
 
 function Overview() {
   const navigate = useNavigate();

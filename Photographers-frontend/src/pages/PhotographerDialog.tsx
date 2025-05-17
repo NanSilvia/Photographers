@@ -56,7 +56,6 @@ const PhotographerDialog = () => {
         } else {
             // Add new photographer
             addPhotographer({
-                id: Math.floor(Math.random() * 1000), // Generate a random ID
                 ...photographerData,
             });
         }

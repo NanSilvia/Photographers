@@ -12,7 +12,7 @@ export class File {
     @Column("varchar", { length: 100 })
     mimeType: string
 
-    @Column("mediumblob")
+    @Column("bytea")
     buffer: Buffer
 
     @ManyToOne(()=>User, (user) => user.files)

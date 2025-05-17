@@ -6,16 +6,19 @@ import { File } from "../model/file";
 import { Session } from "../model/session";
 import { User } from "../model/user";
 import { Log } from "../model/log";
+import { env } from "process";
+
+
 
 export const AppDataSource = new DataSource({
-    type: "mysql",
-    host: "localhost",
-    port: 3306,
-    username: "user1",
+    type: "postgres",
+    host: env.POSTGRES_HOST ?? "localhost",
+    port: Number.parseInt(env.POSTGRES_PORT ?? "5432"),
+    username: 'user1',
     password: "password",
     database: "Photographers_db",
     entities: [Photographer, Photo, File, Session, User, Log],
-    synchronize: false,
+    synchronize: true,
     logging: false,
 });
 

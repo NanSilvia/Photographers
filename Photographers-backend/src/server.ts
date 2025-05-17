@@ -30,6 +30,7 @@ import { hasRole } from "./middleware/authorization";
 import { logging } from "./middleware/logging";
 import { Log } from "./model/log";
 import { createQueryBuilder, QueryBuilder, SelectQueryBuilder } from "typeorm";
+import { env } from "process";
 
 const app = express();
 const sessionRepository = AppDataSource.getRepository(Session);
@@ -55,7 +56,7 @@ const connections: Set<WebSocket> = new Set();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: env.WEB_ORIGIN ?? "http://localhost:5173",
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   })
 ); // Allow frontend access
@@ -635,7 +636,7 @@ const monitorThread = () => {
         .createQueryBuilder("log")
         .innerJoinAndSelect(User,'logUser', 'log.userId = logUser.id')
         .where("logUser.role = :role", {role: "user"})
-        .where("timestamp > DATE_SUB(NOW(), INTERVAL 1 MINUTE)")
+        .andWhere("log.timestamp > NOW() - INTERVAL '1 minute'")
         .groupBy("logUser.id")
         .having(`count(logUser.id) > ${MINIMUM_REQUESTS_TO_BE_SUSPICIOUS}`)
         .select("logUser.id, count(logUser.id) as count");

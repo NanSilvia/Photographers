@@ -1,5 +1,5 @@
 import { Button, Card, CardActions, Grid, Grid2, IconButton, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Photographer from "../model/Photographer";
 import "../styles/TextFieldStyle.css";

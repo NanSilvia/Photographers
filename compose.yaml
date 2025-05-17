@@ -1,0 +1,62 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  api-server:
+    build:
+      context: Photographers-backend
+      dockerfile: Dockerfile
+      target: build
+    volumes:
+      - ./src:/usr/src/app/src
+    environment:
+      NODE_ENV: production
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: db
+      WEB_ORIGIN: 'http://localhost'
+    ports:
+      - 5000:5000
+    expose:
+      - 5000
+    command: npm run serve
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres
+    restart: always
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=Photographers_db
+      - POSTGRES_USER=user1
+      - POSTGRES_PASSWORD=password
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  web:
+    build:
+      context: Photographers-frontend
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - api-server
+volumes:
+  db-data:
+secrets:
+  db-password:
+    file: db/password.txt

@@ -10,10 +10,10 @@ export class Photographer {
     @Column("varchar", { length: 100 })
     name: string
 
-    @Column("datetime")
+    @Column("timestamp")
     birth: Date
 
-    @Column("datetime",{
+    @Column("timestamp", {
         nullable: true,
     })
     death: Date | null

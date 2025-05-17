@@ -1,10 +1,9 @@
 import { Paper, TableContainer } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow, Button } from "@mui/material";
 import User from "../model/User";
 import useUserStore from "../stores/UserStore";
 import AdminUserEditModal from "../components/AdminUserEditModal";
-import { useInRouterContext } from "react-router-dom";
 import { useInterval } from "../hooks/useInterval";
 import axios from "axios";
 

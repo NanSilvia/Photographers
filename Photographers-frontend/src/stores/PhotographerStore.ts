@@ -59,7 +59,7 @@ interface Operation {
     id: string,
 }
 
-interface PhotographerStoreState {
+export interface PhotographerStoreState {
     opened: boolean;
     photographers: Photographer[];
     selectedPhotographer: Photographer | null;
