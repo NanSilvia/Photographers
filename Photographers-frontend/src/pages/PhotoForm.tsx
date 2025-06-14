@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogActions,
@@ -12,6 +12,7 @@ import SvgIcon from "@mui/joy/SvgIcon";
 import { styled } from "@mui/joy";
 import { uploadFile } from "../api";
 import Photo from "../model/Photo";
+import { ReactPhotoEditor } from "react-photo-editor";
 
 interface PhotoFormProps {
   open: boolean;
@@ -20,12 +21,7 @@ interface PhotoFormProps {
   defaultValues: Photo | null;
 }
 
-function PhotoForm({
-  open,
-  onClose,
-  onSubmit,
-  defaultValues,
-}: PhotoFormProps) {
+function PhotoForm({ open, onClose, onSubmit, defaultValues }: PhotoFormProps) {
   const { control, handleSubmit, reset } = useForm<Omit<Photo, "id">>({
     defaultValues: {
       title: "",
@@ -33,6 +29,29 @@ function PhotoForm({
       ...defaultValues, // pune valorile de dinainte
     },
   });
+
+  const [file, setFile] = useState<File | undefined>();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [filePath, setFilePath] = useState<string>("");
+  const hideModal = () => {
+    setShowModal(false);
+  };
+  const handleSaveImage = (editedFile: File) => {
+    uploadFile(editedFile)
+      .then((response) => {
+        setFilePath(`${response.fileId}`);
+      })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+        // Handle error appropriately, maybe set an error state
+      });
+  };
+
+  const setFileData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e?.target?.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
 
   // de fiecare data cand default values se schimba, se trigaruieste
   // useEffect(() => {
@@ -54,6 +73,7 @@ function PhotoForm({
   }, [open, defaultValues, reset]);
 
   const handleFormSubmit = (data: Omit<Omit<Photo, "id">, "photographer">) => {
+    data.imageUrl = filePath;
     onSubmit(data);
     reset();
     onClose();
@@ -136,24 +156,29 @@ function PhotoForm({
                 Upload a file
                 <VisuallyHiddenInput
                   type="file"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      field.onChange(file);
-                      uploadFile(file)
-                        .then((response) => {
-                          field.onChange(response.fileId); // Update the form field with the fileId
-                        })
-                        .catch((error) => {
-                          console.error("Error uploading file:", error);
-                          // Handle error appropriately, maybe set an error state
-                        });
+                  onChange={(e: InputEvent) => {
+                    if (e.target instanceof HTMLInputElement) {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        field.onChange(file);
+                        setFile(file);
+                        setShowModal(true);
+                      }
                     }
                   }}
                 />
               </Button>
             )}
           />
+          {file && (
+            <ReactPhotoEditor
+              open={showModal}
+              onClose={hideModal}
+              file={file}
+              onSaveImage={handleSaveImage}
+              downloadOnSave={false}
+            />
+          )}
           <DialogActions>
             <Button onClick={onClose}>Cancel</Button>
             <Button type="submit" color="primary">

@@ -205,23 +205,25 @@ function PhotographerForm({
                 Upload a file
                 <VisuallyHiddenInput
                   type="file"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      field.onChange(file);
-                      uploadFile(file)
-                        .then((response) => {
-                          // Assuming the server returns { fileId: 'unique-id' }
-                          console.log(
-                            "File uploaded successfully:",
-                            response.fileId
-                          );
-                          field.onChange(response.fileId); // Update the form field with the fileId
-                        })
-                        .catch((error) => {
-                          console.error("Error uploading file:", error);
-                          // Handle error appropriately, maybe set an error state
-                        });
+                  onChange={(e: InputEvent) => {
+                    if(e.target instanceof HTMLInputElement) {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        field.onChange(file);
+                        uploadFile(file)
+                          .then((response) => {
+                            // Assuming the server returns { fileId: 'unique-id' }
+                            console.log(
+                              "File uploaded successfully:",
+                              response.fileId
+                            );
+                            field.onChange(response.fileId); // Update the form field with the fileId
+                          })
+                          .catch((error) => {
+                            console.error("Error uploading file:", error);
+                            // Handle error appropriately, maybe set an error state
+                          });
+                      }
                     }
                   }}
                 />

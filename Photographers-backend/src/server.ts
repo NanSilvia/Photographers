@@ -116,17 +116,11 @@ app.post(
 // Retrieve a file
 app.get(
   "/file/:fileId",
-  hasRole("user"),
   async (req: Request, res: Response) => {
-    if (!req.user)
-      throw new Error("User not defined but passed hasRole middleware");
     const fileId = req.params.fileId;
     try {
       const fileData = await AppDataSource.getRepository(File).findOneBy({
         id: fileId,
-        user: {
-          id: req.user._id, // Ensure the file belongs to the logged-in user
-        },
       });
       if (!fileData) {
         res.status(404).json({ error: "File not found" });

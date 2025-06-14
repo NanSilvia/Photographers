@@ -33,7 +33,7 @@ export const getPhotographerByIdController = async (req: Request, res: Response)
       throw new Error("User not defined but passed hasRole middleware");
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "Invalid photographer ID format" });
       return;
     }
 

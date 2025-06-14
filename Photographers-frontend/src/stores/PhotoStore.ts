@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import Photo from "../model/Photo"
+import { authedFetch } from "../helpers/authedFetch";
 
 interface PhotoStore{
     photos: Photo[];
@@ -15,12 +16,12 @@ const usePhotoStore = create<PhotoStore>()((set, get) => ({
     selectedPhotographerId: undefined,
     setPhotographer: async (photographerId: number) => {
         set({ selectedPhotographerId: photographerId });
-        const photoRes = await fetch(`/api/photographers/${photographerId}/photos`);
+        const photoRes = await authedFetch(`/api/photographers/${photographerId}/photos`);
         set({ photos: await photoRes.json() });
     },
 
     addPhoto: async (p: Omit<Omit<Photo, 'id'>, 'photographer'>) : Promise<void> => {
-        const newPhoto = await fetch(`/api/photographers/${get().selectedPhotographerId}/photos`, {
+        const newPhoto = await authedFetch(`/api/photographers/${get().selectedPhotographerId}/photos`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -32,7 +33,7 @@ const usePhotoStore = create<PhotoStore>()((set, get) => ({
     },
 
     updatePhoto: async (p: Photo): Promise<void> => {
-        const updatedPhoto = await fetch(`/api/photographers/${get().selectedPhotographerId}/photos/${p.id}`, {
+        const updatedPhoto = await authedFetch(`/api/photographers/${get().selectedPhotographerId}/photos/${p.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -48,7 +49,7 @@ const usePhotoStore = create<PhotoStore>()((set, get) => ({
     },
 
     deletePhoto: async (id:number) : Promise<void>=> {
-        await fetch(`/api/photographers/${get().selectedPhotographerId}/photos/${id}`, {
+        await authedFetch(`/api/photographers/${get().selectedPhotographerId}/photos/${id}`, {
             method: "DELETE",  
             headers: {
                 "Content-Type": "application/json",

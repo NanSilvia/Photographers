@@ -6,14 +6,14 @@ import { notifyClients } from "../server";
 export const getPhotographerPhotosController = async (req: Request, res: Response) => {
     if (!req.user)
       throw new Error("User not defined but passed hasRole middleware");
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) {
-      res.status(400).json({ error: "Invalid ID format" });
+    const photographerId = parseInt(req.params.id);
+    if (isNaN(photographerId)) {
+      res.status(400).json({ error: "Invalid photo ID format" });
       return;
     }
-    const photographer = await getPhotographerById(req.user._id, id);
+    const photographer = await getPhotographerById(req.user._id, photographerId);
     if (!photographer) {
-      res.status(404).json({ error: "Photographer not found" });
+      res.status(404).json({ error: "Photographer photo not found" });
       return;
     }
     res.json(photographer.photos);
@@ -23,7 +23,7 @@ export const addPhotographerPhotoController = async (req: Request, res: Response
       throw new Error("User not defined but passed hasRole middleware");
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "Invalid photo ID format" });
       return;
     }
     const photographer = await getPhotographerById(req.user._id, id);
@@ -55,7 +55,7 @@ export const updatePhotographerPhotoController = async (req: Request, res: Respo
     const photographerId = parseInt(req.params.id);
     const photoId = parseInt(req.params.photoId);
     if (isNaN(photographerId)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "Invalid photo ID format" });
       return;
     }
     const photographer = await getPhotographerById(
@@ -90,7 +90,7 @@ export const deletePhotographerPhotoController = async (req: Request, res: Respo
     const photographerId = parseInt(req.params.id);
     const photoId = parseInt(req.params.photoId);
     if (isNaN(photographerId)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "Invalid photo ID format" });
       return;
     }
     const photographer = await getPhotographerById(

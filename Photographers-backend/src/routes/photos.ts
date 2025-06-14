@@ -2,7 +2,9 @@ import { Router } from "express";
 import { addPhotographerPhotoController, deletePhotographerPhotoController, getPhotographerPhotosController, updatePhotographerPhotoController } from "../controllers/photos";
 import multer from "multer";
 
-export const photosRouter = Router();
+export const photosRouter = Router({
+  mergeParams: true,
+});
 
 const upload = multer({
   storage: multer.memoryStorage(),

@@ -17,16 +17,17 @@
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^6.4.7",
     "axios": "^1.8.4",
+    "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
+    "react-photo-editor": "^3.0.0",
     "react-router-dom": "^7.3.0",
     "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
     "recharts": "^2.15.1",
     "socket.io-client": "^4.8.1",
-    "zustand": "^5.0.3",
-    "qrcode.react": "^4.2.0"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

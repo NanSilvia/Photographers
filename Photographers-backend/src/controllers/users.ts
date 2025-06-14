@@ -12,7 +12,7 @@ export const updateUserController = async (req: Request, res: Response) => {
   const userId = parseInt(req.params.id);
   const { username, password, role } = req.body;
   if (isNaN(userId)) {
-    res.status(400).json({ error: "Invalid ID format" });
+    res.status(400).json({ error: "Invalid user ID format" });
     return;
   }
   const user = await AppDataSource.getRepository(User).findOneBy({
@@ -34,7 +34,7 @@ export const updateUserController = async (req: Request, res: Response) => {
 export const deleteUserController = async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
     if (isNaN(userId)) {
-      res.status(400).json({ error: "Invalid ID format" });
+      res.status(400).json({ error: "Invalid user ID format" });
       return;
     }
     const user = await AppDataSource.getRepository(User).findOneBy({

@@ -3,7 +3,9 @@ import { hasRole } from "../middleware/authorization";
 import { createPhotographerController, deletePhotographerController, getPhotographerByIdController, getPhotographersController, updatePhotographerController } from "../controllers/photographers";
 import { photosRouter } from "./photos";
 
-export const photographersRouter = Router();
+export const photographersRouter = Router({
+    mergeParams: true,
+});
 
 photographersRouter.get("/", getPhotographersController);
 
