@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Photographer } from "./photographer";
+import { Tag } from "./tag";
 
 @Entity()
 export class Photo {
@@ -17,4 +18,8 @@ export class Photo {
 
     @Column("text")
     imageUrl: string
+
+    @ManyToMany(() => Tag)
+    @JoinTable()
+    tags: Tag[]
 }

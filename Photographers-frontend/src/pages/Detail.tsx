@@ -1,4 +1,12 @@
-import { Button, Card, CardActions, Grid, Grid2, IconButton, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardActions,
+  Grid,
+  Grid2,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Photographer from "../model/Photographer";
@@ -11,6 +19,8 @@ import PhotoForm from "./PhotoForm";
 import { API_URL } from "../api";
 import { Delete, Edit } from "@mui/icons-material";
 import ConfirmationDialog from "./ModalPopup";
+import TagList from "../components/TagList";
+import { PhotoCard } from "../components/PhotoCard";
 
 const Detail = () => {
   //const params = useParams();
@@ -40,7 +50,13 @@ const Detail = () => {
   const [p, setPhotographer] = useState<Photographer | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { photos, setPhotographer: setPhotoStorePhotographer, addPhoto, updatePhoto, deletePhoto } = usePhotoStore();
+  const {
+    photos,
+    setPhotographer: setPhotoStorePhotographer,
+    addPhoto,
+    updatePhoto,
+    deletePhoto,
+  } = usePhotoStore();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
@@ -70,22 +86,24 @@ const Detail = () => {
     loadPhotographer();
   }, [params.id]);
 
-
-  const handleAddPhoto = async (photo: Omit<Omit<Photo, 'id'>, 'photographer'>) => {
+  const handleAddPhoto = async (
+    photo: Omit<Omit<Photo, "id">, "photographer">
+  ) => {
     addPhoto(photo);
-  }
-  const handleUpdatePhoto = async (photo: Omit<Omit<Photo, 'id'>, 'photographer'>) => {
+  };
+  const handleUpdatePhoto = async (
+    photo: Omit<Omit<Photo, "id">, "photographer">
+  ) => {
     if (!p) return;
     updatePhoto({
       ...photo,
       id: selectedPhoto!.id,
       photographer: p,
     });
-  }
+  };
   const handleDeletePhoto = async (photoId: number) => {
     deletePhoto(photoId);
-  }
-
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -99,9 +117,7 @@ const Detail = () => {
           setIsFormOpen(false);
           setSelectedPhoto(null);
         }}
-        onSubmit={
-          selectedPhoto ? handleUpdatePhoto : handleAddPhoto
-        }
+        onSubmit={selectedPhoto ? handleUpdatePhoto : handleAddPhoto}
         defaultValues={selectedPhoto}
       />
 
@@ -154,18 +170,12 @@ const Detail = () => {
                   title="video player"
                   controls
                 />
-                <a
-                  href={`${API_URL}/file/${p.videoId}`}
-                  target="_blank"
-                >
+                <a href={`${API_URL}/file/${p.videoId}`} target="_blank">
                   Download video
                 </a>
               </Grid>
             )}
-
-
           </Grid>
-
         </Grid>
       </Grid>
 
@@ -191,59 +201,14 @@ const Detail = () => {
 
       {/* lista de fotografii */}
       <Grid2>
-        {
-          photos.map((photo) => {
-            return <Card
-              key={photo.id}
-              sx={{
-                width: "100%",
-                height: "auto",
-                marginTop: 2,
-                padding: 2,
-                backgroundColor: "#f5f5f5",
-                borderRadius: "8px",
-              }}
-            >
-              <img
-                src={`${API_URL}/file/${photo.imageUrl}`}
-                alt={photo.title}
-                style={{ width: "100%", height: "auto", borderRadius: "8px" }}
-              />
-              <Typography variant="h6" color="black" sx={{ marginTop: 1 }}>
-                {photo.title}
-              </Typography>
-              <Typography variant="body2" color="black" sx={{ marginTop: 1 }}>
-                {photo.description}
-              </Typography>
-              <CardActions>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedPhoto(photo);
-                    setIsFormOpen(true);
-                  }}
-                >
-                  <Edit />
-                </IconButton>
-                <ConfirmationDialog
-                  title="Delete Photographer"
-                  description="Are you sure you want to delete this photographer?"
-                  response={() => handleDeletePhoto(photo.id)}
-                >
-                  {(onClick) => (
-                    <IconButton onClick={(e) => {
-                      e.stopPropagation();
-                      onClick();
-                    }}>
-                      <Delete />
-                    </IconButton>
-                  )}
-                </ConfirmationDialog>
-              </CardActions>
-            </Card>;
-          }
-          )
-        }
+        {photos.map((photo) => {
+          return PhotoCard({
+            photo,
+            setSelectedPhoto,
+            setIsFormOpen,
+            handleDeletePhoto,
+          });
+        })}
       </Grid2>
     </>
   );

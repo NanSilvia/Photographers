@@ -7,6 +7,7 @@ import { Session } from "../model/session";
 import { User } from "../model/user";
 import { Log } from "../model/log";
 import { env } from "process";
+import { Tag } from "../model/tag";
 
 
 
@@ -17,7 +18,7 @@ export const AppDataSource = new DataSource({
     username: env.POSTGRES_USER ?? "postgres",
     password: env.POSTGRES_PASSWORD ?? "1234",
     database: "Photographers_db",
-    entities: [Photographer, Photo, File, Session, User, Log],
+    entities: [Photographer, Photo, File, Session, User, Log, Tag],
     synchronize: true,
     logging: false,
 });

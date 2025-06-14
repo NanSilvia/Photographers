@@ -13,6 +13,7 @@ import { styled } from "@mui/joy";
 import { uploadFile } from "../api";
 import Photo from "../model/Photo";
 import { ReactPhotoEditor } from "react-photo-editor";
+import TagEditor from "../components/TagEditor";
 
 interface PhotoFormProps {
   open: boolean;
@@ -179,6 +180,16 @@ function PhotoForm({ open, onClose, onSubmit, defaultValues }: PhotoFormProps) {
               downloadOnSave={false}
             />
           )}
+          <Controller
+            name="tags"
+            control={control}
+            render={({ field }) => (
+              <TagEditor
+                tags={field.value || []}
+                onChange={(tags) => field.onChange(tags)}
+              />
+            )}
+          />
           <DialogActions>
             <Button onClick={onClose}>Cancel</Button>
             <Button type="submit" color="primary">

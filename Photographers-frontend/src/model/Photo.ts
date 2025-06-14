@@ -6,4 +6,5 @@ export default interface Photo {
     title: string
     description: string
     imageUrl: string
+    tags: string[]
 }
