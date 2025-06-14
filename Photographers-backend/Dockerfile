@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Dockerfile reference guide at
 # https://docs.docker.com/go/dockerfile-reference/
@@ -8,36 +6,24 @@
 
 ARG NODE_VERSION=22.14.0
 
-FROM node:${NODE_VERSION}-alpine as base
+FROM node:${NODE_VERSION}-alpine AS build
 
-FROM base as build
-
-WORKDIR /usr/app
+WORKDIR /app
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
 # Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
 # into this layer.
-COPY package.json .
-RUN npm i
-
-# Run the application as a non-root user.
-
-# Copy the rest of the source files into the image.
 COPY . .
+RUN npm i && npm run build
 
-RUN npm run build
-
-FROM base as production
-WORKDIR /usr/app
+FROM node:${NODE_VERSION}-alpine
+WORKDIR /app
 # Use production node environment by default.
-USER node
-
 COPY package.json .
-
 RUN npm install --production
 
-COPY --from=build /usr/app/dist ./
+COPY --from=build /app/dist ./dist
 
 # Expose the port that the application listens on.
 EXPOSE 5000

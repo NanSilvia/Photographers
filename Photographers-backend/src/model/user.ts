@@ -1,6 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Photographer } from "./photographer";
-import { OneToManySubjectBuilder } from "typeorm/persistence/subject-builder/OneToManySubjectBuilder.js";
 import { File } from "./file";
 import { Log } from "./log";
 
@@ -10,10 +9,14 @@ export class User {
     id: number;
 
     @Column("varchar", { length: 100 })
+    @Index()
     username: string;
 
     @Column("varchar", { length: 256 })
     password: string;
+
+    @Column("varchar", {length: 256})
+    twoFactorSecret: string;
 
     @Column("varchar", { length: 100 })
     role: string;

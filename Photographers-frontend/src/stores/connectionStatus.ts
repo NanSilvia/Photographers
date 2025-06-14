@@ -5,7 +5,7 @@ interface ConnectionStatusState {
 }
 
 const useConnectionStatusStore = create<ConnectionStatusState>(set => {
-    const updateOnlineStatus = () => set({ isOnline: navigator.onLine });
+    const updateOnlineStatus = () => {set({ isOnline: navigator.onLine }); console.log("aaaaa")}
 
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);

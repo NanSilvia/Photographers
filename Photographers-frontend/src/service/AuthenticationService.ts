@@ -1,9 +1,9 @@
+import { authedFetch } from "../helpers/authedFetch";
 import User from "../model/User";
 
 export async function GetAllUsers(): Promise<User[]> {
-    const usersRes = await fetch(`/api/users`, {
+    const usersRes = await authedFetch(`/api/users`, {
         method: "GET",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
@@ -22,9 +22,8 @@ export async function GetAllUsers(): Promise<User[]> {
 }
 
 export async function CurrentUser(): Promise<User> {
-    const userRes = await fetch(`/api/users/me`, {
+    const userRes = await authedFetch(`/api/users/me`, {
         method: "GET",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
@@ -42,47 +41,36 @@ export async function CurrentUser(): Promise<User> {
     return userData as User;
 }
 
-export async function Login(username: string, password: string): Promise<User> {
-    const loginRes = await fetch(`/api/login`, {
+export async function Login(username: string, password: string, TwoFACode:string): Promise<User> {
+    const loginRes = await fetch(`/api/auth/login`, {
         method: "POST",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password , TwoFACode}),
     });
 
     if (!loginRes.ok) {
-        const errorJson = await loginRes.json();
-        if (errorJson.error) {
-            throw new Error("Failed to login: " + errorJson.error);
+        const result = await loginRes.json();
+        if (result.error) {
+            throw new Error("Failed to login: " + result.error);
         }
         throw new Error("Failed to login");
     }
+    const result = await loginRes.json()
+    const token = result.token as string;
+    localStorage.setItem("authtoken", token);
 
     return await CurrentUser();
 }
 
 export async function Logout(): Promise<void> {
-    const logoutRes = await fetch(`/api/logout`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    if (!logoutRes.ok) {
-        const errorJson = await logoutRes.json();
-        if (errorJson.error) {
-            throw new Error("Failed to logout: " + errorJson.error);
-        }
-        throw new Error("Failed to logout");
-    }
+    localStorage.removeItem("authtoken");
+    window.location.href = '/';
 }
 
-export async function Register(username: string, password: string): Promise<User> {
-    const registerRes = await fetch(`/api/register`, {
+export async function Register(username: string, password: string): Promise<string> {
+    const registerRes = await fetch(`/api/auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -97,15 +85,14 @@ export async function Register(username: string, password: string): Promise<User
         }
         throw new Error("Failed to register");
     }
-
+    
     const userData = await registerRes.json();
-    return userData as User;
+    return userData.twoFactorSecret as string;
 }
 
 export async function UpdateUser(userId: number, userData: Partial<User>): Promise<User> {
-    const updateRes = await fetch(`/api/users/${userId}`, {
+    const updateRes = await authedFetch(`/api/users/${userId}`, {
         method: "PUT",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
@@ -125,9 +112,8 @@ export async function UpdateUser(userId: number, userData: Partial<User>): Promi
 }
 
 export async function DeleteUser(userId: number): Promise<void> {
-    const deleteRes = await fetch(`/api/users/${userId}`, {
+    const deleteRes = await authedFetch(`/api/users/${userId}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
@@ -143,9 +129,8 @@ export async function DeleteUser(userId: number): Promise<void> {
 }
 
 export async function IsAuthenticated(): Promise<boolean> {
-    const userRes = await fetch(`/api/authstatus`, {
+    const userRes = await authedFetch(`/api/auth/status`, {
         method: "GET",
-        credentials: "include",
     });
     if(!userRes.ok) {
         return false;
@@ -155,4 +140,12 @@ export async function IsAuthenticated(): Promise<boolean> {
         return true;
     }
     return false;
+}
+
+export async function Check2FACodeValue(code: string, username: string): Promise<boolean> {
+    const codeCheckResult = await fetch(`/api/auth/check2FA?code=${code}&username=${username}`, {
+        method: "GET",
+    })
+    const bodyParsed = await codeCheckResult.json();
+    return bodyParsed.valid;
 }

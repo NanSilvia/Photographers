@@ -9,10 +9,11 @@
 # https://github.com/docker/awesome-compose
 services:
   api-server:
-    build:
-      context: Photographers-backend
-      dockerfile: Dockerfile
-      target: build
+    image: silvianan/photographers-api-server
+    # build:
+    #   context: Photographers-backend
+    #   dockerfile: Dockerfile
+    #   target: build
     volumes:
       - ./src:/usr/src/app/src
     environment:
@@ -41,15 +42,18 @@ services:
       - POSTGRES_PASSWORD=password
     expose:
       - 5432
+    ports:
+      - 5432:5432
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
       timeout: 5s
       retries: 5
   web:
-    build:
-      context: Photographers-frontend
-      dockerfile: Dockerfile
+    image: silvianan/photographers-web
+    # build:
+    #   context: Photographers-frontend
+    #   dockerfile: Dockerfile
     ports:
       - 80:80
       - 443:443

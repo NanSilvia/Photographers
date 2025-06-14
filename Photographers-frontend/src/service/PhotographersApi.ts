@@ -144,7 +144,6 @@ const PhotographersApi = {
     getMore: async (currentPage: number, filter: boolean): Promise<Photographer[]> => {
         const response = await axios.get(API_URL, {
             params:{pageNr:currentPage, alive:filter},
-            withCredentials: true,
         });
         return response.data.map((p: any) => ({
             ...p,

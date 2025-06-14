@@ -6,13 +6,13 @@ import React from "react";
 
 
 export const Login = () => {
-  const {control, handleSubmit, reset} = useForm<{ username: string; password: string }>()
+  const {control, handleSubmit, reset} = useForm<{ username: string; password: string; TwoFACode: string}>()
   const [errors, setErrors] = React.useState<string[]>([]);
   const navigate = useNavigate();
-  const handleOnSubmit = async (data: { username: string; password: string }) => {
-    const { username, password } = data;
+  const handleOnSubmit = async (data: { username: string; password: string; TwoFACode:string }) => {
+    const { username, password, TwoFACode } = data;
     try {
-      await useUserStore.getState().login(username, password);
+      await useUserStore.getState().login(username, password, TwoFACode);
       reset(); // Reset the form after successful login]
       navigate("/photographers"); // Redirect to home page after successful login
     } catch (error) {
@@ -37,6 +37,12 @@ export const Login = () => {
                     control={control}
                     defaultValue=""
                     render={({ field }) => <input {...field} type="password" placeholder="Password" required />}
+                />
+                <Controller
+                    name="TwoFACode"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => <input {...field} placeholder="2FACode" required />}
                 />
                 <button type="submit">Login</button> 
                 

@@ -10,11 +10,11 @@ export interface UserStore {
     fetchStatus: () => Promise<void>;
     setUser: (user: User | null) => void;
     setAuthenticated: (authenticated: boolean) => void;
-    login: (username: string, password: string) => Promise<void>;
+    login: (username: string, password: string, TwoFACode: string) => Promise<void>;
     logout: () => Promise<void>;
     updateUser: (user: User) => Promise<void>;
     deleteUser: (user: User) => Promise<void>;
-    register: (username: string, password: string) => Promise<void>;
+    register: (username: string, password: string) => Promise<string>;
 }
 
 const useUserStore = create<UserStore>((set, get) => ({
@@ -42,8 +42,8 @@ const useUserStore = create<UserStore>((set, get) => ({
     },
     setUser: (user: User | null) => set({ user }),
     setAuthenticated: (authenticated: boolean) => set({ authenticated }),
-    login: async (username: string, password: string) => {
-        const user = await AuthenticationService.Login(username, password);
+    login: async (username: string, password: string, TwoFACode: string) => {
+        const user = await AuthenticationService.Login(username, password, TwoFACode);
         console.log('User logged in:', user);
         set({ user, authenticated: true });
     },
@@ -66,7 +66,7 @@ const useUserStore = create<UserStore>((set, get) => ({
         }
     },
     register: async (username: string, password: string) => {
-        await AuthenticationService.Register(username, password);
+        return await AuthenticationService.Register(username, password);
     },
 }));
 
