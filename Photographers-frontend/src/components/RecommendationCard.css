@@ -1,0 +1,147 @@
+.recommendation-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.photographer-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.photographer-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photographer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  font-size: 20px;
+  font-weight: bold;
+  color: #666;
+}
+
+.photographer-details h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.photo-count {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.similarity-score {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+}
+
+.recommendation-body {
+  margin-bottom: 20px;
+}
+
+.photographer-bio {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.matching-tags {
+  margin-bottom: 12px;
+}
+
+.tags-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.more-tags {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.explanation {
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.recommendation-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.explore-button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.explore-button:hover {
+  background: #1565c0;
+}
+
+.explore-button:active {
+  transform: translateY(1px);
+}

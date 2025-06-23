@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../databaseHelper/dataSource";
 import { User } from "../model/user";
+import { Photographer } from "../model/photographer";
 import { hash } from "argon2";
 
 export const getUsersController = async (req: Request, res: Response) => {
@@ -204,4 +205,65 @@ export const getProfiles = async (req: Request, res: Response) => {
     });
   console.log("Profiles:", profiles);
   res.json(profiles);
+};
+
+export const addPhotographerToUserController = async (
+  req: Request,
+  res: Response
+) => {
+  if (!req.user) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const userId = req.user._id;
+  const photographerId = parseInt(req.params.photographerId);
+
+  if (isNaN(photographerId)) {
+    res.status(400).json({ error: "Invalid photographer ID format" });
+    return;
+  }
+
+  try {
+    // Get user with photographers relation
+    const user = await AppDataSource.getRepository(User).findOne({
+      where: { id: userId },
+      relations: ["photographers"],
+    });
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    // Get photographer
+    const photographer = await AppDataSource.getRepository(
+      Photographer
+    ).findOneBy({
+      id: photographerId,
+    });
+
+    if (!photographer) {
+      res.status(404).json({ error: "Photographer not found" });
+      return;
+    }
+
+    // Check if photographer is already in user's list
+    const isAlreadyAdded = user.photographers.some(
+      (p) => p.id === photographerId
+    );
+    if (isAlreadyAdded) {
+      res.status(400).json({ error: "Photographer already in your list" });
+      return;
+    }
+
+    // Add photographer to user's list
+    user.photographers.push(photographer);
+    await AppDataSource.getRepository(User).save(user);
+
+    res.json({ message: "Photographer added to your list successfully" });
+  } catch (error) {
+    console.error("Error adding photographer to user list:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };

@@ -12,9 +12,9 @@ export const getCommentsForPhotographer = async (
 ): Promise<Comment[]> => {
   // First check if photographer exists
   const photographer = await photographerRepo.findOne({
-    where: { id: photographerId }
+    where: { id: photographerId },
   });
-  
+
   if (!photographer) {
     throw new Error("Photographer not found");
   }
@@ -43,18 +43,18 @@ export const createComment = async (
 ): Promise<Comment> => {
   // Validate photographer exists
   const photographer = await photographerRepo.findOne({
-    where: { id: photographerId }
+    where: { id: photographerId },
   });
-  
+
   if (!photographer) {
     throw new Error("Photographer not found");
   }
 
   // Validate user exists
   const user = await userRepo.findOne({
-    where: { id: userId }
+    where: { id: userId },
   });
-  
+
   if (!user) {
     throw new Error("User not found");
   }
@@ -65,13 +65,13 @@ export const createComment = async (
   comment.photographer = photographer;
 
   const savedComment = await commentRepo.save(comment);
-  
+
   // Return comment with user relation loaded
   return await commentRepo.findOne({
     relations: {
       user: true,
     },
-    where: { id: savedComment.id }
+    where: { id: savedComment.id },
   });
 };
 
@@ -84,7 +84,7 @@ export const deleteComment = async (
       user: true,
       photographer: true,
     },
-    where: { id: commentId }
+    where: { id: commentId },
   });
 
   if (!comment) {
@@ -98,6 +98,6 @@ export const deleteComment = async (
 
   const photographerId = comment.photographer.id;
   await commentRepo.remove(comment);
-  
+
   return { photographerId };
 };

@@ -1,10 +1,4 @@
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Paper,
-} from "@mui/material";
+import { Box, Typography, TextField, Button, Paper } from "@mui/material";
 import { useState } from "react";
 import Comment from "../model/Comment";
 import CommentCard from "./CommentCard";

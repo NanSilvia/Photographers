@@ -27,11 +27,11 @@ export class Photographer {
   })
   death: Date | null;
 
-  @Column("text")
-  profilepicUrl: string;
+  @Column("text", { nullable: true })
+  profilepicUrl: string | null;
 
-  @Column("text")
-  description: string;
+  @Column("text", { nullable: true })
+  description: string | null;
 
   @Column("varchar", { length: 100, nullable: true })
   videoId?: string;

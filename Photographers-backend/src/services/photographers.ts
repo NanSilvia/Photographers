@@ -45,9 +45,6 @@ export async function getPhotographerById(
   return await photographersRepo.findOne({
     where: {
       id,
-      users: {
-        id: userId,
-      },
     },
     relations: {
       photos: {

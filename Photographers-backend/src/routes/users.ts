@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  addPhotographerToUserController,
   deleteUserController,
   getCurrentUserController,
   getFriends,
@@ -16,6 +17,7 @@ usersRouter.get(
   passport.authenticate("jwt", { session: false }),
   getCurrentUserController
 );
+
 usersRouter.get("/", hasRole("admin"), getUsersController);
 usersRouter.put("/:id", hasRole("admin"), updateUserController);
 usersRouter.delete("/:id", hasRole("admin"), deleteUserController);

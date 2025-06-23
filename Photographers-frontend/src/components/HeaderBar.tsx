@@ -71,6 +71,12 @@ export default function HeaderBar() {
           )}
           {authenticated && (
             <>
+              <Button
+                color="inherit"
+                onClick={() => navigate("/recommendations")}
+              >
+                For You
+              </Button>
               <Button color="inherit" onClick={() => navigate("/friends")}>
                 Friends
               </Button>{" "}

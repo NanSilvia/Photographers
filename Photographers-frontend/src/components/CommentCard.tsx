@@ -31,10 +31,14 @@ const CommentCard = ({ comment, onDelete }: CommentCardProps) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
+    return (
+      date.toLocaleDateString() +
+      " " +
+      date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
   };
 
   return (
@@ -45,7 +49,9 @@ const CommentCard = ({ comment, onDelete }: CommentCardProps) => {
             {comment.user.username.charAt(0).toUpperCase()}
           </Avatar>
           <Box sx={{ flexGrow: 1 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}
+            >
               <Typography variant="subtitle2" fontWeight="bold">
                 {comment.user.username}
               </Typography>

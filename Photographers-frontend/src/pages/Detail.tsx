@@ -113,25 +113,33 @@ const Detail = () => {
     wsService.connect();
 
     // Handle new comments
-    const handleNewComment = (data: { photographerId: number; comment: Comment }) => {
+    const handleNewComment = (data: {
+      photographerId: number;
+      comment: Comment;
+    }) => {
       if (data.photographerId === p.id) {
-        setComments(prev => [data.comment, ...prev]);
+        setComments((prev) => [data.comment, ...prev]);
       }
     };
 
     // Handle deleted comments
-    const handleDeletedComment = (data: { photographerId: number; commentId: number }) => {
+    const handleDeletedComment = (data: {
+      photographerId: number;
+      commentId: number;
+    }) => {
       if (data.photographerId === p.id) {
-        setComments(prev => prev.filter(comment => comment.id !== data.commentId));
+        setComments((prev) =>
+          prev.filter((comment) => comment.id !== data.commentId)
+        );
       }
     };
 
-    wsService.on('comment_created', handleNewComment);
-    wsService.on('comment_deleted', handleDeletedComment);
+    wsService.on("comment_created", handleNewComment);
+    wsService.on("comment_deleted", handleDeletedComment);
 
     return () => {
-      wsService.off('comment_created', handleNewComment);
-      wsService.off('comment_deleted', handleDeletedComment);
+      wsService.off("comment_created", handleNewComment);
+      wsService.off("comment_deleted", handleDeletedComment);
     };
   }, [p]);
 
@@ -152,7 +160,9 @@ const Detail = () => {
   const loadComments = async (photographerId: number) => {
     try {
       setCommentsLoading(true);
-      const commentsData = await CommentsApi.getCommentsForPhotographer(photographerId);
+      const commentsData = await CommentsApi.getCommentsForPhotographer(
+        photographerId
+      );
       setComments(commentsData);
     } catch (err) {
       console.error("Failed to load comments:", err);
@@ -216,7 +226,7 @@ const Detail = () => {
 
   const handleAddComment = async (content: string) => {
     if (!p) return;
-    
+
     try {
       setAddingComment(true);
       // Don't update local state - WebSocket will handle it
@@ -256,11 +266,13 @@ const Detail = () => {
       <Grid container spacing={4} sx={{ padding: 4 }}>
         {/* Left Side: Photo */}
         <Grid item xs={12} md={6}>
-          <img
-            src={p.profilepicUrl}
-            alt={p.name}
-            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
-          />
+          {p.profilepicUrl && (
+            <img
+              src={p.profilepicUrl}
+              alt={p.name}
+              style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+            />
+          )}
         </Grid>
 
         {/* Right Side: Details */}

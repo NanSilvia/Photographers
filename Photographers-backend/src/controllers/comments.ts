@@ -11,12 +11,12 @@ export const getCommentsController = async (req: Request, res: Response) => {
     res.status(400).json("photographer doesn't exist");
     return;
   }
-  
+
   try {
     const comments = await getCommentsForPhotographer(
       Number.parseInt(req.params.id)
     );
-    
+
     // Remove sensitive user data
     res.json(
       comments.map((comment) => ({
@@ -43,7 +43,7 @@ export const createCommentController = async (req: Request, res: Response) => {
     res.status(400).json("photographer doesn't exist");
     return;
   }
-  
+
   if (!req.body.content || !req.body.content.trim()) {
     res.status(400).json("comment content is required");
     return;
@@ -74,9 +74,9 @@ export const createCommentController = async (req: Request, res: Response) => {
     };
 
     // Notify all clients about the new comment
-    notifyClients('comment_created', {
+    notifyClients("comment_created", {
       photographerId: Number.parseInt(req.params.id),
-      comment: responseComment
+      comment: responseComment,
     });
 
     res.status(201).json(responseComment);
@@ -112,9 +112,9 @@ export const deleteCommentController = async (req: Request, res: Response) => {
     );
 
     // Notify all clients about the deleted comment
-    notifyClients('comment_deleted', {
+    notifyClients("comment_deleted", {
       photographerId,
-      commentId: Number.parseInt(req.params.commentId)
+      commentId: Number.parseInt(req.params.commentId),
     });
 
     res.status(200).json({ message: "Comment deleted successfully" });

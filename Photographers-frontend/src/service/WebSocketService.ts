@@ -1,3 +1,5 @@
+import { CurrentUser } from "./AuthenticationService";
+
 class WebSocketService {
   private static instance: WebSocketService;
   private ws: WebSocket | null = null;
@@ -5,6 +7,7 @@ class WebSocketService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
+  private authenticated = false;
 
   private constructor() {}
 
@@ -21,11 +24,12 @@ class WebSocketService {
     }
 
     try {
-      this.ws = new WebSocket('ws://localhost:5000/ws');
+      this.ws = new WebSocket("ws://localhost:5000/ws");
 
       this.ws.onopen = () => {
-        console.log('WebSocket connected');
+        console.log("WebSocket connected");
         this.reconnectAttempts = 0;
+        this.authenticateConnection();
       };
 
       this.ws.onmessage = (event) => {
@@ -33,44 +37,66 @@ class WebSocketService {
           const message = JSON.parse(event.data);
           this.handleMessage(message);
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
+          console.error("Error parsing WebSocket message:", error);
         }
       };
 
       this.ws.onclose = () => {
-        console.log('WebSocket disconnected');
+        console.log("WebSocket disconnected");
         this.attemptReconnect();
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        console.error("WebSocket error:", error);
       };
     } catch (error) {
-      console.error('Error connecting to WebSocket:', error);
+      console.error("Error connecting to WebSocket:", error);
       this.attemptReconnect();
     }
   }
 
   private attemptReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log('Max reconnection attempts reached');
+      console.log("Max reconnection attempts reached");
       return;
     }
 
     this.reconnectAttempts++;
-    console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    console.log(
+      `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+    );
 
     setTimeout(() => {
       this.connect();
     }, this.reconnectDelay * this.reconnectAttempts);
   }
 
+  private async authenticateConnection() {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
+
+    try {
+      const user = await CurrentUser();
+      if (user && user.id) {
+        this.ws.send(
+          JSON.stringify({
+            type: "auth",
+            userId: user.id,
+          })
+        );
+        this.authenticated = true;
+        console.log("WebSocket authenticated for user:", user.id);
+      }
+    } catch (error) {
+      console.error("Failed to authenticate WebSocket connection:", error);
+    }
+  }
+
   private handleMessage(message: { type: string; payload: any }) {
     const { type, payload } = message;
     const typeListeners = this.listeners.get(type);
-    
+
     if (typeListeners) {
-      typeListeners.forEach(callback => callback(payload));
+      typeListeners.forEach((callback) => callback(payload));
     }
   }
 

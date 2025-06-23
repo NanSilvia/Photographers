@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 });
 
 const wss = new WebSocketServer({ noServer: true });
-const connections: Set<WebSocket> = new Set();
+const connections: Map<WebSocket, { userId?: number }> = new Map();
 
 app.use(
   cors({
@@ -53,11 +53,22 @@ srv.on("upgrade", (request, socket, head) => {
 });
 
 wss.on("connection", (ws) => {
-  connections.add(ws);
+  connections.set(ws, {});
   console.log("New client connected");
+
   ws.on("message", (message) => {
-    console.log("Received:", message.toString());
+    try {
+      const data = JSON.parse(message.toString());
+      if (data.type === "auth" && data.userId) {
+        // Associate this connection with a user ID
+        connections.set(ws, { userId: data.userId });
+        console.log(`Client authenticated with user ID: ${data.userId}`);
+      }
+    } catch (error) {
+      console.log("Received:", message.toString());
+    }
   });
+
   ws.on("close", () => {
     connections.delete(ws);
   });
@@ -66,8 +77,25 @@ wss.on("connection", (ws) => {
 export const notifyClients = (type: string, payload: any) => {
   console.log("Notifying clients:", type, payload);
   console.log(connections);
-  connections.forEach((client) => {
+  connections.forEach((connectionData, client) => {
     if (client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({
+          type,
+          payload,
+        })
+      );
+    }
+  });
+};
+
+export const notifyUser = (userId: number, type: string, payload: any) => {
+  console.log(`Notifying user ${userId}:`, type, payload);
+  connections.forEach((connectionData, client) => {
+    if (
+      connectionData.userId === userId &&
+      client.readyState === WebSocket.OPEN
+    ) {
       client.send(
         JSON.stringify({
           type,

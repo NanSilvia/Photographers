@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios from "axios";
+import { authedFetch } from "./helpers/authedFetch";
 
 export interface Photographer {
   id: string;
@@ -19,7 +20,9 @@ export const getPhotographers = async (): Promise<Photographer[]> => {
 };
 
 // Add a new photographer
-export const addPhotographer = async (photographerData: Photographer): Promise<Photographer> => {
+export const addPhotographer = async (
+  photographerData: Photographer
+): Promise<Photographer> => {
   const response = await fetch(`${API_URL}/photographers`, {
     method: "POST",
     headers: {
@@ -32,7 +35,10 @@ export const addPhotographer = async (photographerData: Photographer): Promise<P
 };
 
 // Update a photographer
-export const updatePhotographer = async (id: string, photographerData: Photographer): Promise<Photographer> => {
+export const updatePhotographer = async (
+  id: string,
+  photographerData: Photographer
+): Promise<Photographer> => {
   const response = await fetch(`${API_URL}/photographers/${id}`, {
     method: "PUT",
     headers: {
@@ -45,7 +51,9 @@ export const updatePhotographer = async (id: string, photographerData: Photograp
 };
 
 // Delete a photographer
-export const deletePhotographer = async (id: string): Promise<{ message: string }> => {
+export const deletePhotographer = async (
+  id: string
+): Promise<{ message: string }> => {
   const response = await fetch(`${API_URL}/photographers/${id}`, {
     method: "DELETE",
   });
@@ -54,28 +62,52 @@ export const deletePhotographer = async (id: string): Promise<{ message: string 
 };
 
 export const uploadFile = async (file: File): Promise<{ fileId: string }> => {
-    const formData = new FormData();
-    formData.append('file', file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    try {
-        const response = await axios.post(`${API_URL}/upload`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Failed to upload file');
-    }
+  try {
+    const response = await axios.post(`${API_URL}/upload`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || "Failed to upload file");
+  }
 };
 
 export const getFile = async (fileId: string): Promise<Blob> => {
-    try {
-        const response = await axios.get(`${API_URL}/file/${fileId}`, {
-            responseType: 'blob',
-        });
-        return response.data;
-    } catch (error: any) {
-        throw new Error(error.response?.data?.error || 'Failed to retrieve file');
+  try {
+    const response = await axios.get(`${API_URL}/file/${fileId}`, {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || "Failed to retrieve file");
+  }
+};
+
+// Add a photographer to user's list (creates relationship)
+export const addPhotographerToUserList = async (
+  photographerId: number
+): Promise<{ message: string }> => {
+  const response = await authedFetch(
+    `/api/photographers/${photographerId}/add-to-list`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
     }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to add photographer to list: ${response.statusText}`
+    );
+  }
+
+  const data = await response.json();
+  return data;
 };

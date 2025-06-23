@@ -9,6 +9,7 @@ import TagsPage from "./pages/TagsPage";
 import PhotosByTagPage from "./pages/PhotosByTagPage";
 import { FriendsPage } from "./pages/FriendsPage";
 import AlbumDetailPage from "./pages/AlbumDetailPage";
+import { RecommendationsPage } from "./pages/RecommendationsPage";
 
 const AppRouter = () => {
   const Overview = lazy(() => import("./pages/Overview"));
@@ -28,6 +29,9 @@ const AppRouter = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/tags" element={<TagsPage />} />
           <Route path="/tags/:tagName" element={<PhotosByTagPage />} />
+          {authenticated && (
+            <Route path="/recommendations" element={<RecommendationsPage />} />
+          )}
           {authenticated && <Route path="/friends" element={<FriendsPage />} />}
           {authenticated && user?.role === "admin" && (
             <Route path="/admin" element={<AdminPage />} />

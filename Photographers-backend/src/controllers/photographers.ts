@@ -10,7 +10,7 @@ import {
 import { Photographer } from "../model/photographer";
 import { AppDataSource } from "../databaseHelper/dataSource";
 import { User } from "../model/user";
-import { notifyClients } from "../server";
+import { notifyClients, notifyUser } from "../server";
 // Get all photographers
 // app.get(
 //   "/photographers",
@@ -71,15 +71,16 @@ export const createPhotographerController = async (
   if (!req.user)
     throw new Error("User not defined but passed hasRole middleware");
   const { name, birth, death, profilepicUrl, description } = req.body;
-  if (!name || !birth || !profilepicUrl || !description) {
-    res.status(400).json({ error: "Missing required fields" });
+  if (!name || !birth) {
+    res.status(400).json({ error: "Name and birth date are required" });
+    return;
   }
   const photographertobeAdded = new Photographer();
   photographertobeAdded.name = name;
   photographertobeAdded.birth = new Date(birth);
   photographertobeAdded.death = death ? new Date(death) : null;
-  photographertobeAdded.profilepicUrl = profilepicUrl;
-  photographertobeAdded.description = description;
+  photographertobeAdded.profilepicUrl = profilepicUrl || null;
+  photographertobeAdded.description = description || null;
   const currentUser = await AppDataSource.getRepository(User).findOneBy({
     id: req.user._id,
   });
@@ -88,7 +89,7 @@ export const createPhotographerController = async (
 
   const newPhotographer = await addPhotographer(photographertobeAdded);
   res.status(201).json(newPhotographer);
-  notifyClients("photographerAdded", newPhotographer);
+  notifyUser(req.user._id, "photographerAdded", newPhotographer);
 };
 // );
 

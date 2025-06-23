@@ -13,7 +13,10 @@ class CommentsApi {
     return response.json();
   }
 
-  async createComment(photographerId: number, content: string): Promise<Comment> {
+  async createComment(
+    photographerId: number,
+    content: string
+  ): Promise<Comment> {
     const response = await authedFetch(
       `${API_URL}/photographers/${photographerId}/comments`,
       {
@@ -31,12 +34,9 @@ class CommentsApi {
   }
 
   async deleteComment(commentId: number): Promise<void> {
-    const response = await authedFetch(
-      `${API_URL}/comments/${commentId}`,
-      {
-        method: "DELETE",
-      }
-    );
+    const response = await authedFetch(`${API_URL}/comments/${commentId}`, {
+      method: "DELETE",
+    });
     if (!response.ok) {
       throw new Error("Failed to delete comment");
     }

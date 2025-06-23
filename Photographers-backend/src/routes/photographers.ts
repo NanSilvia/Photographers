@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { Request, Response } from "express";
 import { hasRole } from "../middleware/authorization";
 import {
   createPhotographerController,
@@ -18,6 +19,9 @@ import {
   createCommentController,
   deleteCommentController,
 } from "../controllers/comments";
+import { AppDataSource } from "../databaseHelper/dataSource";
+import { Photographer } from "../model/photographer";
+import { addPhotographerToUserController } from "../controllers/users";
 
 export const photographersRouter = Router({
   mergeParams: true,
@@ -42,7 +46,18 @@ photographersRouter.post("/:id/albums", createAlbumController);
 
 // Comments routes
 photographersRouter.get("/:id/comments", getCommentsController);
-photographersRouter.post("/:id/comments", hasRole("user"), createCommentController);
+photographersRouter.post(
+  "/:id/comments",
+  hasRole("user"),
+  createCommentController
+);
+
+// add photographer to own user
+photographersRouter.post(
+  "/:photographerId/add-to-list",
+  hasRole("user"),
+  addPhotographerToUserController
+);
 
 photographersRouter.post(
   "/:id/recommend/:recommendeeId",
