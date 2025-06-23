@@ -201,14 +201,15 @@ const Detail = () => {
 
       {/* lista de fotografii */}
       <Grid2>
-        {photos.map((photo) => {
-          return PhotoCard({
-            photo,
-            setSelectedPhoto,
-            setIsFormOpen,
-            handleDeletePhoto,
-          });
-        })}
+        {photos.map((photo) => (
+          <PhotoCard
+            key={photo.id}
+            photo={photo}
+            setSelectedPhoto={setSelectedPhoto}
+            setIsFormOpen={setIsFormOpen}
+            handleDeletePhoto={handleDeletePhoto}
+          />
+        ))}
       </Grid2>
     </>
   );

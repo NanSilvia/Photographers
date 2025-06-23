@@ -98,7 +98,8 @@ function Overview() {
   );
 
   if (photographers.length === 0 && !loading && hasMore && authenticated) {
-    fetchMore().finally(() => setInitialLoad(true));
+    fetchMore();
+    setInitialLoad(true);
   } else if (photographers.length > 0 && !initialLoad) {
     setInitialLoad(true);
   }

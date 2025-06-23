@@ -17,7 +17,8 @@ import { Log } from "./model/log";
 import { env } from "process";
 import { router } from "./routes/routes";
 import { passport } from "./auth/auth";
-
+import { server } from "typescript";
+import http from "http";
 const app = express();
 app.use(passport.initialize());
 app.use((req, res, next) => {
@@ -40,15 +41,15 @@ app.use(express.json());
 app.use(logging());
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(router);
-app.use((req: Request, res: Response, next) => {
-  if (req.url === "/ws") {
-    req.socket.on("upgrade", (request, socket, head) => {
-      wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit("connection", ws, request);
-      });
+const srv = http.createServer(app);
+srv.on("upgrade", (request, socket, head) => {
+  if (request.url === "/ws") {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
     });
+  } else {
+    socket.destroy();
   }
-  next();
 });
 
 wss.on("connection", (ws) => {
@@ -235,7 +236,7 @@ const PORT = 5000;
 AppDataSource.initialize().then(() => {
   // Start the server
   monitorThread();
-  app.listen(PORT, () => {
+  srv.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
 });

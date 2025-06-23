@@ -11,6 +11,7 @@ import { Photographer } from "./photographer";
 import { File } from "./file";
 import { Log } from "./log";
 import { Notification } from "./notification";
+import { Rating } from "./rating";
 
 @Entity()
 export class User {
@@ -54,4 +55,7 @@ export class User {
     cascade: true,
   })
   notifications: Notification[];
+
+  @OneToMany(() => Rating, (r) => r.user)
+  ratings: Rating[];
 }

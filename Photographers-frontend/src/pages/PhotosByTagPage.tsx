@@ -30,11 +30,9 @@ export default () => {
     <div>
       <h1>Photos by tag: #{tagName}</h1>
       <Grid2>
-        {photos.map((photo) => {
-          return PhotoCard({
-            photo,
-          });
-        })}
+        {photos.map((photo) => (
+          <PhotoCard photo={photo} key={photo.id} />
+        ))}
       </Grid2>
     </div>
   );

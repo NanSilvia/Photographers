@@ -28,6 +28,13 @@ export const getPhotographerPhotosController = async (
     photographer.photos.map((photo) => ({
       ...photo,
       tags: photo.tags.map((tag) => tag.name),
+      ratings: photo.ratings.map((ra) => ({
+        ...ra,
+        user: {
+          ...ra.user,
+          password: undefined,
+        },
+      })),
     }))
   );
 };
@@ -156,6 +163,14 @@ export const getPhotosByTagController = async (req: Request, res: Response) => {
     photos.map((photo) => ({
       ...photo,
       tags: photo.tags.map((tag) => tag.name),
+      ratings: photo.ratings.map((rating) => ({
+        ...rating,
+        user: {
+          ...rating.user,
+          password: undefined,
+          twoFactorSecret: undefined,
+        },
+      })),
     }))
   );
 };

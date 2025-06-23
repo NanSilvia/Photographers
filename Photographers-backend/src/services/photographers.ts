@@ -52,6 +52,9 @@ export async function getPhotographerById(
     relations: {
       photos: {
         tags: true,
+        ratings: {
+          user: true,
+        },
       },
     },
   });

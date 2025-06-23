@@ -7,6 +7,7 @@ import { tagsRouter } from "./tags";
 import { getFriends } from "../controllers/users";
 import { profileRouter } from "./profile";
 import { notificationsRouter } from "./notifications";
+import { ratingRouter } from "./ratings";
 
 export const router = express.Router({
   mergeParams: true,
@@ -17,3 +18,4 @@ router.use("/users", usersRouter);
 router.use("/me", hasRole("user"), profileRouter);
 router.use("/notifications", hasRole("user"), notificationsRouter);
 router.use("/tags", tagsRouter);
+router.use("/rating", hasRole("user"), ratingRouter);
