@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import {
   getPhotographerById,
   updatePhotographer,
-} from "../model/photographers";
+} from "../services/photographers";
 import { Photo } from "../model/photo";
 import { notifyClients } from "../server";
-import { getTagsByNames } from "../model/tagService";
-import { getPhotosByTagName } from "../model/photos";
+import { getTagsByNames } from "../services/tagService";
+import { getPhotosByTagName } from "../services/photos";
 
 export const getPhotographerPhotosController = async (
   req: Request,

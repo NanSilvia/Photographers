@@ -10,6 +10,7 @@ import {
 import { Photographer } from "./photographer";
 import { File } from "./file";
 import { Log } from "./log";
+import { Notification } from "./notification";
 
 @Entity()
 export class User {
@@ -29,9 +30,10 @@ export class User {
   @Column("varchar", { length: 100 })
   role: string;
 
-  @OneToMany(() => Photographer, (photographer) => photographer.user, {
+  @ManyToMany(() => Photographer, (photographer) => photographer.users, {
     cascade: true,
   })
+  @JoinTable()
   photographers: Photographer[];
 
   @OneToMany(() => File, (file) => file.user, {
@@ -47,4 +49,9 @@ export class User {
   @ManyToMany(() => User, (user) => user.friends)
   @JoinTable()
   friends: User[];
+
+  @OneToMany(() => Notification, (notification) => notification.user, {
+    cascade: true,
+  })
+  notifications: Notification[];
 }

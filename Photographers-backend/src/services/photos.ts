@@ -1,6 +1,6 @@
 import { In } from "typeorm";
 import { AppDataSource } from "../databaseHelper/dataSource";
-import { Photo } from "./photo";
+import { Photo } from "../model/photo";
 
 const photoRepo = AppDataSource.getRepository(Photo);
 

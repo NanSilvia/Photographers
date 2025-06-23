@@ -1,40 +1,44 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Photo } from "./photo";
 import { User } from "./user";
 
 @Entity()
 export class Photographer {
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column("varchar", { length: 100 })
-    name: string
+  @Column("varchar", { length: 100 })
+  name: string;
 
-    @Column("timestamp")
-    birth: Date
+  @Column("timestamp")
+  birth: Date;
 
-    @Column("timestamp", {
-        nullable: true,
-    })
-    death: Date | null
+  @Column("timestamp", {
+    nullable: true,
+  })
+  death: Date | null;
 
-    @Column("text")
-    profilepicUrl: string
+  @Column("text")
+  profilepicUrl: string;
 
-    @Column("text")
-    description: string
+  @Column("text")
+  description: string;
 
-    @Column("varchar", { length: 100, nullable: true })
-    videoId?: string
+  @Column("varchar", { length: 100, nullable: true })
+  videoId?: string;
 
-    @OneToMany(() => Photo, (photo) => photo.photographer, {
-        cascade: true,
+  @OneToMany(() => Photo, (photo) => photo.photographer, {
+    cascade: true,
+  })
+  photos: Photo[];
 
-    })
-    photos: Photo[]
-
-    @ManyToOne(() => User, (user => user.photographers), {
-        eager: true, //  to always fetch the user when displaying photographers
-    })
-    user: User
+  @ManyToMany(() => User, (user) => user.photographers)
+  users: User[];
 }

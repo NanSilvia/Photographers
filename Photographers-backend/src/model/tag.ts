@@ -3,11 +3,12 @@ import { Photo } from "./photo";
 
 @Entity()
 export class Tag {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column("varchar", { length: 50, unique: true })
-    name: string;
+  @Column("varchar", { length: 50, unique: true })
+  name: string;
 
-    photos: Photo[];
+  @ManyToMany(() => Photo, (photo) => photo.tags)
+  photos: Photo[];
 }

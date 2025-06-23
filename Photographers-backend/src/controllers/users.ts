@@ -144,12 +144,7 @@ export const removeFriend = async (req: Request, res: Response) => {
     return;
   }
   const userRepo = AppDataSource.getRepository(User);
-  const user = await userRepo.findOne({
-    where: { id: userId },
-    relations: {
-      friends: true,
-    },
-  });
+  const user = await userRepo.findOneBy({ id: userId });
 
   if (!user) {
     res.status(404).json({ error: "User not found" });

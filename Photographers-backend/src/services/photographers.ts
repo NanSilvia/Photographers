@@ -1,13 +1,14 @@
 //In-memory storage for photographers
 // import myPhotographers from "./photogdb.js";
-import { Photographer } from "./photographer";
+import { Photographer } from "../model/photographer";
 //let photographers: Photographer[] = myPhotographers;
 // export const photographers = [];
 
 import { AppDataSource } from "../databaseHelper/dataSource";
 import { IsNull, Not } from "typeorm";
-import { User } from "./user";
-import { Photo } from "./photo";
+import { User } from "../model/user";
+import { Photo } from "../model/photo";
+import { Notification } from "../model/notification";
 
 const photographersRepo = AppDataSource.getRepository(Photographer);
 
@@ -25,7 +26,7 @@ export async function getPhotographersByPage(
     skip: pageNr * 8,
     take: 8,
     where: {
-      user: {
+      users: {
         id: userId,
       },
       ...(aliveOnly
@@ -44,7 +45,7 @@ export async function getPhotographerById(
   return await photographersRepo.findOne({
     where: {
       id,
-      user: {
+      users: {
         id: userId,
       },
     },
@@ -94,7 +95,7 @@ export async function deletePhotographer(
   const photographerToDelete = await photographersRepo.findOne({
     where: {
       id,
-      user: {
+      users: {
         id: userId,
       },
     },
@@ -102,6 +103,72 @@ export async function deletePhotographer(
   if (!photographerToDelete) return null;
   await photographersRepo.remove(photographerToDelete);
   return photographerToDelete;
+}
+
+// make a notification function to notify user about this photographer
+export async function recommendPhotographer(
+  userId: number,
+  photographerId: number
+): Promise<void> {
+  const photographer = await photographersRepo.findOne({
+    where: {
+      id: photographerId,
+    },
+    relations: {
+      users: true,
+    },
+  });
+
+  if (!photographer) {
+    throw new Error("Photographer not found");
+  }
+
+  const user = await AppDataSource.getRepository(User).findOne({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const notification: Notification = new Notification();
+  notification.user = user;
+  notification.photographer = photographer;
+  notification.createdAt = new Date();
+
+  await AppDataSource.getRepository(Notification).save(notification);
+}
+
+export async function addPhotographerToUser(
+  userId: number,
+  photographerId: number
+): Promise<void> {
+  const user = await AppDataSource.getRepository(User).findOne({
+    where: { id: userId },
+    relations: ["photographers"],
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const photographer = await photographersRepo.findOne({
+    relations: {
+      users: true,
+    },
+    where: { id: photographerId },
+  });
+
+  if (!photographer) {
+    throw new Error("Photographer not found");
+  }
+
+  if (!user.photographers) {
+    user.photographers = [];
+  }
+
+  user.photographers.push(photographer);
+  await AppDataSource.getRepository(User).save(user);
 }
 
 // module.exports = {

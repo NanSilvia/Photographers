@@ -1,469 +1,9 @@
-// import { useState, useEffect } from 'react';
-// import AddIcon from '@mui/icons-material/Add';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import EditIcon from '@mui/icons-material/Edit';
-// import FilterListIcon from '@mui/icons-material/FilterList';
-// import { Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, IconButton, Typography, Box, Button } from '@mui/material';
-// import { useNavigate } from 'react-router-dom';
-
-// import usePhotographerStore from '../stores/PhotographerStore';
-// import '../styles/CardStyles.css';
-// import Photographer from '../model/Photographer';
-// import ConfirmationDialog from './ModalPopup';
-// import PhotographerForm from './PhotographerForm';
-
-// function Overview() {
-//     const navigate = useNavigate();
-//     const { photographers, deletePhotographer, addPhotographer, editPhotographer, handleOpen, handleClose, selectedPhotographer } = usePhotographerStore();
-//     const [isFormOpen, setIsFormOpen] = useState(false);
-//     const [filterAlive, setFilterAlive] = useState(false); // State for filtering alive photographers
-//     const [currentPage, setCurrentPage] = useState(1); // State for current page
-//     const photographersPerPage = 8; // Number of photographers per page
-
-//     // Calculate oldest and youngest photographers
-//     const oldestPhotographer = photographers.reduce((oldest, p) =>
-//         (!oldest || p.birth < oldest.birth) ? p : oldest, null as Photographer | null
-//     );
-
-//     const youngestPhotographer = photographers.reduce((youngest, p) =>
-//         (!youngest || p.birth > youngest.birth) ? p : youngest, null as Photographer | null
-//     );
-
-//     // Filter photographers based on the filterAlive state
-//     const filteredPhotographers = filterAlive
-//         ? photographers.filter((p) => p.death === null)
-//         : photographers;
-
-//     // Pagination logic
-//     const indexOfLastPhotographer = currentPage * photographersPerPage;
-//     const indexOfFirstPhotographer = indexOfLastPhotographer - photographersPerPage;
-//     const currentPhotographers = filteredPhotographers.slice(indexOfFirstPhotographer, indexOfLastPhotographer);
-
-//     // Total number of pages
-//     const totalPages = Math.ceil(filteredPhotographers.length / photographersPerPage);
-
-//     // Handle page change
-//     const handlePageChange = (newPage: number) => {
-//         setCurrentPage(newPage);
-//     };
-
-//     const handleConfirmation = (p: Photographer) => {
-//         deletePhotographer(p.id);
-//         console.log('Confirmed!');
-//     };
-
-//     const handleAddPhotographer = (data: Omit<Photographer, 'id'>) => {
-//         const newPhotographer = {
-//             id: Math.floor(Math.random() * 1000), // Generate a random ID
-//             ...data,
-//         };
-//         addPhotographer(newPhotographer);
-//     };
-
-//     const handleEditPhotographer = (data: Omit<Photographer, 'id'>) => {
-//         if (selectedPhotographer) {
-//             const updatedPhotographer = {
-//                 ...selectedPhotographer,
-//                 ...data,
-//             };
-//             editPhotographer(updatedPhotographer);
-//         }
-//     };
-
-//     // Open the form when a photographer is selected for editing
-//     useEffect(() => {
-//         if (selectedPhotographer) {
-//             setIsFormOpen(true); // Open the form when a photographer is selected
-//         }
-//     }, [selectedPhotographer]);
-
-//     return (
-//         <>
-//             <Grid container spacing={2}>
-//                 <Grid item xs={12} alignItems={'center'}>
-//                     <Typography align='center' variant='h4'>
-//                         Photographer Overview
-//                     </Typography>
-//                 </Grid>
-//                 <Grid item xs={12} display={'flex'} justifyContent={'flex-end'}>
-//                     <Box display="flex" alignItems="center">
-//                         <IconButton onClick={() => setFilterAlive(!filterAlive)} aria-label='filter'>
-//                             <FilterListIcon sx={{ color: filterAlive ? 'primary.main' : 'black' }} />
-//                         </IconButton>
-//                     </Box>
-//                     <IconButton onClick={() => { handleOpen(); setIsFormOpen(true); }} aria-label='add'>
-//                         <AddIcon sx={{ color: 'black' }} />
-//                     </IconButton>
-//                 </Grid>
-//                 {currentPhotographers.map((p: Photographer) => {
-//                     const isOldest = p.id === oldestPhotographer?.id;
-//                     const isYoungest = p.id === youngestPhotographer?.id;
-
-//                     return (
-//                         <Grid key={p.id} item xs={12} md={3} display={'flex'} justifyContent={'center'}>
-//                             <Card sx={{
-//                                 maxWidth: 345,
-//                                 width: 345,
-//                                 border: isOldest ? '2px solid red' : isYoungest ? '2px solid green' : 'none'
-//                             }} className='portCardCl'>
-//                                 <CardActionArea
-//                                     onClick={() => navigate(`/photographers/${p.id}`)} className='portBodyCl'>
-//                                     <CardMedia
-//                                         sx={{
-//                                             height: 300,
-//                                             width: 345,
-//                                             objectFit: 'cover',
-//                                         }}
-//                                         image={p.profilepicUrl}
-//                                         title={p.name}
-//                                     />
-//                                     <CardContent sx={{ height: 'auto' }}>
-//                                         <Typography
-//                                             gutterBottom
-//                                             variant='h5'
-//                                             fontStyle={'oblique'}
-//                                             component='div'
-//                                         >{`${p.name}`}</Typography>
-//                                         <Typography
-//                                             gutterBottom
-//                                             variant='body1'
-//                                             component='div'
-//                                         >
-//                                             {`Born: ${p.birth.toDateString()}`}
-//                                         </Typography>
-//                                         <Typography
-//                                             gutterBottom
-//                                             variant='body2'
-//                                             component='div'
-//                                         >
-//                                             {`Died: ${p.death === null ? '-' : p.death.toDateString()}`}
-//                                         </Typography>
-//                                         {isOldest && (
-//                                             <Typography variant="body2" color="error">
-//                                                 Oldest Photographer
-//                                             </Typography>
-//                                         )}
-//                                         {isYoungest && (
-//                                             <Typography variant="body2" color="success">
-//                                                 Youngest Photographer
-//                                             </Typography>
-//                                         )}
-//                                     </CardContent>
-//                                 </CardActionArea>
-//                                 <CardActions className='portButCl'>
-//                                     <IconButton size='small' onClick={() => { handleOpen(p); setIsFormOpen(true); }}>
-//                                         <EditIcon aria-label='edit' sx={{ color: '#212121' }} />
-//                                     </IconButton>
-//                                     <IconButton size='small'>
-//                                         <ConfirmationDialog
-//                                             title='Confirmation'
-//                                             description='Are you sure you want to delete this photographer?'
-//                                             response={() => handleConfirmation(p)}
-//                                         >
-//                                             {(showDialog) => (
-//                                                 <DeleteIcon
-//                                                     onClick={showDialog}
-//                                                     aria-label='delete'
-//                                                     sx={{ color: '#212121' }}
-//                                                 />
-//                                             )}
-//                                         </ConfirmationDialog>
-//                                     </IconButton>
-//                                 </CardActions>
-//                             </Card>
-//                         </Grid>
-//                     );
-//                 })}
-//             </Grid>
-
-//             {/* Pagination Controls */}
-//             <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-//                 <Button
-//                     onClick={() => handlePageChange(currentPage - 1)}
-//                     disabled={currentPage === 1}
-//                 >
-//                     Previous
-//                 </Button>
-//                 <Typography variant="body1" sx={{ margin: '0 16px' }}>
-//                     Page {currentPage} of {totalPages}
-//                 </Typography>
-//                 <Button
-//                     onClick={() => handlePageChange(currentPage + 1)}
-//                     disabled={currentPage === totalPages}
-//                 >
-//                     Next
-//                 </Button>
-//             </Box>
-
-//             {/* Photographer Form Dialog */}
-//             <PhotographerForm
-//                 open={isFormOpen}
-//                 onClose={() => {
-//                     setIsFormOpen(false);
-//                     handleClose();
-//                 }}
-//                 onSubmit={selectedPhotographer ? handleEditPhotographer : handleAddPhotographer}
-//                 defaultValues={
-//                     selectedPhotographer
-//                         ? {
-//                               name: selectedPhotographer.name,
-//                               birth: selectedPhotographer.birth, // Already a Date object
-//                               death: selectedPhotographer.death, // Already a Date object or null
-//                               profilepicUrl: selectedPhotographer.profilepicUrl,
-//                               description: selectedPhotographer.description,
-//                           }
-//                         : undefined
-//                 }
-//             />
-//         </>
-//     );
-// }
-
-// export default Overview;
-
-// import { useState, useEffect } from 'react';
-// import AddIcon from '@mui/icons-material/Add';
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import EditIcon from '@mui/icons-material/Edit';
-// import FilterListIcon from '@mui/icons-material/FilterList';
-// import { Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, IconButton, Typography, Box, Button } from '@mui/material';
-// import { useNavigate } from 'react-router-dom';
-
-// import usePhotographerStore from '../stores/PhotographerStore';
-// import '../styles/CardStyles.css';
-// import Photographer from '../model/Photographer';
-// import ConfirmationDialog from './ModalPopup';
-// import PhotographerForm from './PhotographerForm';
-
-// function Overview() {
-//     const navigate = useNavigate();
-//     const { photographers, deletePhotographer, addPhotographer, editPhotographer, handleOpen, handleClose, selectedPhotographer, fetchMore } = usePhotographerStore();
-//     const [isFormOpen, setIsFormOpen] = useState(false);
-//     const [filterAlive, setFilterAlive] = useState(false); // State for filtering alive photographers
-//     const [currentPage, setCurrentPage] = useState(1); // State for current page
-//     const photographersPerPage = 8; // Number of photographers per page
-//     const [loading, setLoading] = useState(true); // Loading state for fetching data
-
-//     console.log("Overview component rendered");
-//     // Fetch photographers when the component is mounted
-//     useEffect(() => {
-//         const fetchData = async () => {
-//             setLoading(true);
-//             console.log("fetching use effect")
-//             await fetchPhotographers();
-//             setLoading(false);
-//         };
-
-//         fetchData();
-//     }, [fetchPhotographers]);
-
-//     // Calculate oldest and youngest photographers
-//     const oldestPhotographer = photographers.reduce((oldest, p) =>
-//         (!oldest || p.birth < oldest.birth) ? p : oldest, null as Photographer | null
-//     );
-
-//     const youngestPhotographer = photographers.reduce((youngest, p) =>
-//         (!youngest || p.birth > youngest.birth) ? p : youngest, null as Photographer | null
-//     );
-
-//     // Filter photographers based on the filterAlive state
-//     const filteredPhotographers = filterAlive
-//         ? photographers.filter((p) => p.death === null)
-//         : photographers;
-
-//     // Pagination logic
-//     const indexOfLastPhotographer = currentPage * photographersPerPage;
-//     const indexOfFirstPhotographer = indexOfLastPhotographer - photographersPerPage;
-//     const currentPhotographers = filteredPhotographers.slice(indexOfFirstPhotographer, indexOfLastPhotographer);
-
-//     // Total number of pages
-//     const totalPages = Math.ceil(filteredPhotographers.length / photographersPerPage);
-
-//     // Handle page change
-//     const handlePageChange = (newPage: number) => {
-//         setCurrentPage(newPage);
-//     };
-
-//     const handleConfirmation = (p: Photographer) => {
-//         deletePhotographer(p.id);
-//         console.log('Confirmed!');
-//     };
-
-//     const handleAddPhotographer = (data: Omit<Photographer, 'id'>) => {
-//         const newPhotographer: Photographer = {
-//             id: Math.floor(Math.random() * 1000), // Generate a random ID
-//             ...data,
-//         };
-//         addPhotographer(newPhotographer);
-//     };
-
-//     const handleEditPhotographer = (data: Omit<Photographer, 'id'>) => {
-//         if (selectedPhotographer) {
-//             const updatedPhotographer = {
-//                 ...selectedPhotographer,
-//                 ...data,
-//             };
-//             editPhotographer(updatedPhotographer);
-//         }
-//     };
-
-//     // Open the form when a photographer is selected for editing
-//     useEffect(() => {
-//         if (selectedPhotographer) {
-//             setIsFormOpen(true); // Open the form when a photographer is selected
-//         }
-//     }, [selectedPhotographer]);
-
-//     // Loading state - show loading indicator when photographers are being fetched
-//     if (loading) {
-//         return <Typography variant="h6" align="center">Loading photographers...</Typography>;
-//     }
-
-//     return (
-//         <>
-//             <Grid container spacing={2} sx={{height:'90vh'}}>
-//                 <Grid item xs={12} alignItems={'center'}>
-//                     <Typography align='center' variant='h4'>
-//                         Photographer Overview
-//                     </Typography>
-//                 </Grid>
-//                 <Grid item xs={12} display={'flex'} justifyContent={'flex-end'}>
-//                     <Box display="flex" alignItems="center">
-//                         <IconButton onClick={() => setFilterAlive(!filterAlive)} aria-label='filter'>
-//                             <FilterListIcon sx={{ color: filterAlive ? 'primary.main' : 'black' }} />
-//                         </IconButton>
-//                     </Box>
-//                     <IconButton onClick={() => { handleOpen(); setIsFormOpen(true); }} aria-label='add'>
-//                         <AddIcon sx={{ color: 'black' }} />
-//                     </IconButton>
-//                 </Grid>
-//                 {currentPhotographers.map((p: Photographer) => {
-//                     const isOldest = p.id === oldestPhotographer?.id;
-//                     const isYoungest = p.id === youngestPhotographer?.id;
-
-//                     return (
-//                         <Grid key={p.id} item xs={12} md={3} display={'flex'} justifyContent={'center'}>
-//                             <Card sx={{
-//                                 maxWidth: 345,
-//                                 width: 345,
-//                                 border: isOldest ? '2px solid red' : isYoungest ? '2px solid green' : 'none'
-//                             }} className='portCardCl'>
-//                                 <CardActionArea
-//                                     onClick={() => navigate(`/photographers/${p.id}`)} className='portBodyCl'>
-//                                     <CardMedia
-//                                         sx={{
-//                                             height: 300,
-//                                             width: 345,
-//                                             objectFit: 'cover',
-//                                         }}
-//                                         image={p.profilepicUrl}
-//                                         title={p.name}
-//                                     />
-//                                     <CardContent sx={{ height: 'auto' }}>
-//                                         <Typography
-//                                             gutterBottom
-//                                             variant='h5'
-//                                             fontStyle={'oblique'}
-//                                             component='div'
-//                                         >{`${p.name}`}</Typography>
-//                                         <Typography
-//                                             gutterBottom
-//                                             variant='body1'
-//                                             component='div'
-//                                         >
-//                                             {`Born: ${p.birth.toDateString()}`}
-//                                         </Typography>
-//                                         <Typography
-//                                             gutterBottom
-//                                             variant='body2'
-//                                             component='div'
-//                                         >
-//                                             {`Died: ${p.death === null ? '-' : p.death.toDateString()}`}
-//                                         </Typography>
-//                                         {isOldest && (
-//                                             <Typography variant="body2" color="error">
-//                                                 Oldest Photographer
-//                                             </Typography>
-//                                         )}
-//                                         {isYoungest && (
-//                                             <Typography variant="body2" color="success">
-//                                                 Youngest Photographer
-//                                             </Typography>
-//                                         )}
-//                                     </CardContent>
-//                                 </CardActionArea>
-//                                 <CardActions className='portButCl'>
-//                                     <IconButton size='small' onClick={() => { handleOpen(p); setIsFormOpen(true); }}>
-//                                         <EditIcon aria-label='edit' sx={{ color: '#212121' }} />
-//                                     </IconButton>
-//                                     <IconButton size='small'>
-//                                         <ConfirmationDialog
-//                                             title='Confirmation'
-//                                             description='Are you sure you want to delete this photographer?'
-//                                             response={() => handleConfirmation(p)}
-//                                         >
-//                                             {(showDialog) => (
-//                                                 <DeleteIcon
-//                                                     onClick={showDialog}
-//                                                     aria-label='delete'
-//                                                     sx={{ color: '#212121' }}
-//                                                 />
-//                                             )}
-//                                         </ConfirmationDialog>
-//                                     </IconButton>
-//                                 </CardActions>
-//                             </Card>
-//                         </Grid>
-//                     );
-//                 })}
-//             </Grid>
-
-//             {/* Pagination Controls */}
-//             <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 4 }}>
-//                 <Button
-//                     onClick={() => handlePageChange(currentPage - 1)}
-//                     disabled={currentPage === 1}
-//                 >
-//                     Previous
-//                 </Button>
-//                 <Typography variant="body1" sx={{ margin: '0 16px' }}>
-//                     Page {currentPage} of {totalPages}
-//                 </Typography>
-//                 <Button
-//                     onClick={() => handlePageChange(currentPage + 1)}
-//                     disabled={currentPage === totalPages}
-//                 >
-//                     Next
-//                 </Button>
-//             </Box>
-
-//             {/* Photographer Form Dialog */}
-//             <PhotographerForm
-//                 open={isFormOpen}
-//                 onClose={() => {
-//                     setIsFormOpen(false);
-//                     handleClose();
-//                 }}
-//                 onSubmit={selectedPhotographer ? handleEditPhotographer : handleAddPhotographer}
-//                 defaultValues={
-//                     selectedPhotographer
-//                         ? {
-//                             name: selectedPhotographer.name,
-//                             birth: selectedPhotographer.birth, // Already a Date object
-//                             death: selectedPhotographer.death, // Already a Date object or null
-//                             profilepicUrl: selectedPhotographer.profilepicUrl,
-//                             description: selectedPhotographer.description,
-//                         }
-//                         : undefined
-//                 }
-//             />
-//         </>
-//     );
-// }
-
-// export default Overview;
-
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ShareIcon from "@mui/icons-material/Share";
 import {
   Card,
   CardActionArea,
@@ -474,19 +14,21 @@ import {
   IconButton,
   Typography,
   Box,
-  CircularProgress,
+  Button,
   Container,
+  CircularProgress,
 } from "@mui/material";
-import { Add, Delete, Edit, FilterList } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+
 import usePhotographerStore from "../stores/PhotographerStore";
+import useConnectionStatusStore from "../stores/connectionStatus";
+import useUserStore from "../stores/UserStore";
+import "../styles/CardStyles.css";
 import Photographer from "../model/Photographer";
 import ConfirmationDialog from "./ModalPopup";
 import PhotographerForm from "./PhotographerForm";
-import Charts from "../tests/Charts";
-
-import useConnectionStatusStore from "../stores/connectionStatus";
-import useUserStore from "../stores/UserStore";
+import SharePhotographerDialog from "./SharePhotographerDialog";
+import { Add, Delete, Edit, FilterList } from "@mui/icons-material";
 
 function Overview() {
   const navigate = useNavigate();
@@ -507,7 +49,13 @@ function Overview() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [initialLoad, setInitialLoad] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [observerRef, setObserverRef] = useState<IntersectionObserver | null>(
+    null
+  );
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [photographerToShare, setPhotographerToShare] = useState<number | null>(
+    null
+  );
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const { isOnline } = useConnectionStatusStore();
@@ -532,9 +80,9 @@ function Overview() {
     (node: HTMLDivElement | null) => {
       if (loading) return;
 
-      if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef) observerRef.disconnect();
 
-      observerRef.current = new IntersectionObserver(
+      const newObserver = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting && hasMore && !loading && authenticated) {
             fetchMore();
@@ -543,7 +91,8 @@ function Overview() {
         { threshold: 0.1 }
       );
 
-      if (node) observerRef.current.observe(node);
+      if (node) newObserver.observe(node);
+      setObserverRef(newObserver);
     },
     [loading, hasMore, fetchMore]
   );
@@ -572,6 +121,11 @@ function Overview() {
         handleClose();
       });
     }
+  };
+
+  const handleShare = (photographerId: number) => {
+    setPhotographerToShare(photographerId);
+    setIsShareDialogOpen(true);
   };
 
   if (authenticated) {
@@ -699,6 +253,15 @@ function Overview() {
                           </IconButton>
                         )}
                       </ConfirmationDialog>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleShare(p.id)}
+                      >
+                        <ShareIcon
+                          aria-label="share"
+                          sx={{ color: "#212121" }}
+                        />
+                      </IconButton>
                     </CardActions>
                   </Card>
                 </Grid>
@@ -766,7 +329,17 @@ function Overview() {
           </p>
         </Box>
 
-        <Charts />
+        {/* Share Dialog */}
+        {photographerToShare && (
+          <SharePhotographerDialog
+            open={isShareDialogOpen}
+            onClose={() => {
+              setIsShareDialogOpen(false);
+              setPhotographerToShare(null);
+            }}
+            photographerId={photographerToShare}
+          />
+        )}
       </div>
     );
   }

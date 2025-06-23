@@ -8,18 +8,16 @@ import { User } from "../model/user";
 import { Log } from "../model/log";
 import { env } from "process";
 import { Tag } from "../model/tag";
-
-
+import { Notification } from "../model/notification";
 
 export const AppDataSource = new DataSource({
-    type: "postgres",
-    host: env.POSTGRES_HOST ?? "localhost",
-    port: Number.parseInt(env.POSTGRES_PORT ?? "5432"),
-    username: env.POSTGRES_USER ?? "postgres",
-    password: env.POSTGRES_PASSWORD ?? "1234",
-    database: "Photographers_db",
-    entities: [Photographer, Photo, File, Session, User, Log, Tag],
-    synchronize: true,
-    logging: false,
+  type: "postgres",
+  host: env.POSTGRES_HOST ?? "localhost",
+  port: Number.parseInt(env.POSTGRES_PORT ?? "5432"),
+  username: env.POSTGRES_USER ?? "postgres",
+  password: env.POSTGRES_PASSWORD ?? "1234",
+  database: "Photographers_db",
+  entities: [Photographer, Photo, File, Session, User, Log, Tag, Notification],
+  synchronize: true,
+  logging: false,
 });
-
