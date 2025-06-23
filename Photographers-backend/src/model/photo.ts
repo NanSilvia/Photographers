@@ -10,6 +10,7 @@ import {
 import { Photographer } from "./photographer";
 import { Tag } from "./tag";
 import { Rating } from "./rating";
+import { Album } from "./album";
 
 @Entity()
 export class Photo {
@@ -34,4 +35,7 @@ export class Photo {
 
   @OneToMany(() => Rating, (r) => r.photo)
   ratings: Rating[];
+
+  @OneToMany(() => Album, (a) => a.photos)
+  albums: Album[];
 }

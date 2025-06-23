@@ -59,6 +59,7 @@ export const addPhotographerPhotoController = async (
   photo.imageUrl = req.body.imageUrl;
   photo.title = req.body.title;
   photo.description = req.body.description;
+  photo.ratings = [];
 
   const tagNames: string[] = req.body.tags || [];
 
@@ -70,9 +71,13 @@ export const addPhotographerPhotoController = async (
     res.status(404).json({ error: "Photographer not found" });
     return;
   }
-  res.json(
-    updatedPhotographer.photos.find((p) => p.imageUrl === photo.imageUrl)
+  const updatedPhoto = updatedPhotographer.photos.find(
+    (p) => p.imageUrl === photo.imageUrl
   );
+  res.json({
+    ...updatedPhoto,
+    tags: updatedPhoto?.tags.map((t) => t.name),
+  });
   notifyClients("photoAdded", { photographerId: id, photo });
 };
 
@@ -111,7 +116,13 @@ export const updatePhotographerPhotoController = async (
     res.status(404).json({ error: "Photographer not found" });
     return;
   }
-  res.json(updatedPhotographer.photos.find((p) => p.id === photoId));
+  const updatedPhoto = updatedPhotographer.photos.find(
+    (p) => p.imageUrl === photo.imageUrl
+  );
+  res.json({
+    ...updatedPhoto,
+    tags: updatedPhoto?.tags.map((t) => t.name),
+  });
 };
 
 export const deletePhotographerPhotoController = async (
@@ -145,7 +156,11 @@ export const deletePhotographerPhotoController = async (
     res.status(404).json({ error: "Photographer not found" });
     return;
   }
-  res.json(updatedPhotographer.photos.find((p) => p.id === photoId));
+  const updatedPhoto = updatedPhotographer.photos.find((p) => p.id === photoId);
+  res.json({
+    ...updatedPhoto,
+    tags: updatedPhoto?.tags.map((t) => t.name),
+  });
 };
 
 export const getPhotosByTagController = async (req: Request, res: Response) => {
