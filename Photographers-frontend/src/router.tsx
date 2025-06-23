@@ -8,6 +8,7 @@ import useUserStore from "./stores/UserStore";
 import TagsPage from "./pages/TagsPage";
 import PhotosByTagPage from "./pages/PhotosByTagPage";
 import { FriendsPage } from "./pages/FriendsPage";
+import AlbumDetailPage from "./pages/AlbumDetailPage";
 
 const AppRouter = () => {
   const Overview = lazy(() => import("./pages/Overview"));
@@ -22,6 +23,7 @@ const AppRouter = () => {
           <Route path="/" element={<Navigate replace to="/photographers" />} />
           <Route element={<Overview />} path={"/photographers"} />
           <Route element={<DetailPage />} path={"/photographers/:id"} />
+          <Route element={<AlbumDetailPage />} path={"/albums/:id"} />
           <Route path="/login" element={<Login />} />{" "}
           <Route path="/register" element={<Register />} />
           <Route path="/tags" element={<TagsPage />} />

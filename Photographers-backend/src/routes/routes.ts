@@ -8,6 +8,7 @@ import { getFriends } from "../controllers/users";
 import { profileRouter } from "./profile";
 import { notificationsRouter } from "./notifications";
 import { ratingRouter } from "./ratings";
+import { albumsRouter } from "./albums";
 
 export const router = express.Router({
   mergeParams: true,
@@ -19,3 +20,4 @@ router.use("/me", hasRole("user"), profileRouter);
 router.use("/notifications", hasRole("user"), notificationsRouter);
 router.use("/tags", tagsRouter);
 router.use("/rating", hasRole("user"), ratingRouter);
+router.use("/albums", hasRole("user"), albumsRouter);

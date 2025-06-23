@@ -1,26 +1,20 @@
-import {
-  Button,
-  Card,
-  CardActions,
-  Grid,
-  Grid2,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { Button, Grid, Typography, Box, Divider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Photographer from "../model/Photographer";
+import Album from "../model/Album";
 import "../styles/TextFieldStyle.css";
 
 import PhotographersApi from "../service/PhotographersApi";
+import AlbumsApi from "../service/AlbumsApi";
 import usePhotoStore from "../stores/PhotoStore";
 import Photo from "../model/Photo";
 import PhotoForm from "./PhotoForm";
 import { API_URL } from "../api";
-import { Delete, Edit } from "@mui/icons-material";
-import ConfirmationDialog from "./ModalPopup";
-import TagList from "../components/TagList";
 import { PhotoCard } from "../components/PhotoCard";
+import AlbumsList from "../components/AlbumsList";
+import AddAlbumDialog from "../components/AddAlbumDialog";
+import AddPhotoToAlbumDialog from "../components/AddPhotoToAlbumDialog";
 
 const Detail = () => {
   //const params = useParams();
@@ -60,6 +54,18 @@ const Detail = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
+  // Album state
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [albumsLoading, setAlbumsLoading] = useState(false);
+  const [isAddAlbumDialogOpen, setIsAddAlbumDialogOpen] = useState(false);
+  const [isAddPhotoToAlbumDialogOpen, setIsAddPhotoToAlbumDialogOpen] =
+    useState(false);
+  const [selectedPhotoForAlbum, setSelectedPhotoForAlbum] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
+  const [albumOperationLoading, setAlbumOperationLoading] = useState(false);
+
   useEffect(() => {
     const loadPhotographer = async () => {
       try {
@@ -71,6 +77,8 @@ const Detail = () => {
           if (photographer) {
             setPhotographer(photographer);
             setPhotoStorePhotographer(photographer.id);
+            // Load albums for this photographer
+            loadAlbums(photographer.id);
           } else {
             setError("Photographer not found");
           }
@@ -85,6 +93,20 @@ const Detail = () => {
 
     loadPhotographer();
   }, [params.id]);
+
+  const loadAlbums = async (photographerId: number) => {
+    try {
+      setAlbumsLoading(true);
+      const albumsData = await AlbumsApi.getAlbumsForPhotographer(
+        photographerId
+      );
+      setAlbums(albumsData);
+    } catch (err) {
+      console.error("Failed to load albums:", err);
+    } finally {
+      setAlbumsLoading(false);
+    }
+  };
 
   const handleAddPhoto = async (
     photo: Omit<Omit<Photo, "id">, "photographer">
@@ -103,6 +125,40 @@ const Detail = () => {
   };
   const handleDeletePhoto = async (photoId: number) => {
     deletePhoto(photoId);
+  };
+  const handleCreateAlbum = async (name: string) => {
+    if (!p) return;
+
+    try {
+      setAlbumOperationLoading(true);
+      await AlbumsApi.createAlbum(p.id, name);
+      // Reload albums
+      await loadAlbums(p.id);
+    } catch (err) {
+      console.error("Failed to create album:", err);
+    } finally {
+      setAlbumOperationLoading(false);
+    }
+  };
+
+  const handleAddPhotoToAlbum = (photoId: number, photoTitle: string) => {
+    setSelectedPhotoForAlbum({ id: photoId, title: photoTitle });
+    setIsAddPhotoToAlbumDialogOpen(true);
+  };
+
+  const handleSubmitAddPhotoToAlbum = async (albumId: number) => {
+    if (!selectedPhotoForAlbum) return;
+
+    try {
+      setAlbumOperationLoading(true);
+      await AlbumsApi.addPhotoToAlbum(albumId, selectedPhotoForAlbum.id);
+      // Reload albums to reflect the change
+      if (p) await loadAlbums(p.id);
+    } catch (err) {
+      console.error("Failed to add photo to album:", err);
+    } finally {
+      setAlbumOperationLoading(false);
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -179,8 +235,8 @@ const Detail = () => {
         </Grid>
       </Grid>
 
-      {/* Add Photo Button */}
-      <Grid item xs={12} sx={{ marginTop: 2 }}>
+      {/* Add Photo and Album Buttons */}
+      <Box sx={{ display: "flex", gap: 2, marginTop: 2, marginBottom: 3 }}>
         <Button
           variant="contained"
           color="primary"
@@ -197,20 +253,58 @@ const Detail = () => {
         >
           Add Photo
         </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setIsAddAlbumDialogOpen(true)}
+        >
+          Create Album
+        </Button>
+      </Box>
+
+      {/* Albums Section */}
+      <AlbumsList albums={albums} loading={albumsLoading} />
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* Photos Section */}
+      <Typography variant="h4" color="black" sx={{ marginBottom: 2 }}>
+        Photos ({photos.length})
+      </Typography>
+
+      {/* Photos Grid - 4 columns */}
+      <Grid container spacing={3}>
+        {photos.map((photo) => (
+          <Grid item xs={12} sm={6} md={3} key={photo.id}>
+            <PhotoCard
+              photo={photo}
+              setSelectedPhoto={setSelectedPhoto}
+              setIsFormOpen={setIsFormOpen}
+              handleDeletePhoto={handleDeletePhoto}
+              onAddToAlbum={handleAddPhotoToAlbum}
+            />
+          </Grid>
+        ))}
       </Grid>
 
-      {/* lista de fotografii */}
-      <Grid2>
-        {photos.map((photo) => (
-          <PhotoCard
-            key={photo.id}
-            photo={photo}
-            setSelectedPhoto={setSelectedPhoto}
-            setIsFormOpen={setIsFormOpen}
-            handleDeletePhoto={handleDeletePhoto}
-          />
-        ))}
-      </Grid2>
+      {/* Album Dialogs */}
+      <AddAlbumDialog
+        open={isAddAlbumDialogOpen}
+        onClose={() => setIsAddAlbumDialogOpen(false)}
+        onSubmit={handleCreateAlbum}
+        loading={albumOperationLoading}
+      />
+
+      <AddPhotoToAlbumDialog
+        open={isAddPhotoToAlbumDialogOpen}
+        onClose={() => {
+          setIsAddPhotoToAlbumDialogOpen(false);
+          setSelectedPhotoForAlbum(null);
+        }}
+        onSubmit={handleSubmitAddPhotoToAlbum}
+        albums={albums}
+        photoTitle={selectedPhotoForAlbum?.title}
+        loading={albumOperationLoading}
+      />
     </>
   );
 };

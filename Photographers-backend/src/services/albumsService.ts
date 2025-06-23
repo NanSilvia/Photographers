@@ -10,6 +10,15 @@ const photographersRepo = AppDataSource.getRepository(Photographer);
 export const getAllAlbumsPhotographer = async (
   photographerId: number
 ): Promise<Album[]> => {
+  // First check if photographer exists
+  const photographer = await photographersRepo.findOne({
+    where: { id: photographerId },
+  });
+
+  if (!photographer) {
+    throw new Error("Photographer not found");
+  }
+
   const albums = await albumRepo.find({
     relations: {
       photos: {
@@ -42,6 +51,9 @@ export const addPhotoToAlbum = async (photoId: number, albumId: number) => {
     where: {
       id: albumId,
     },
+    relations: {
+      photos: true,
+    },
   });
 
   if (!album) {
@@ -68,6 +80,9 @@ export const removePhotoFromAlbum = async (
     where: {
       id: albumId,
     },
+    relations: {
+      photos: true,
+    },
   });
 
   if (!album) {
@@ -93,4 +108,27 @@ export const createAnAlbum = async (photogId: number, name: string) => {
   album.photographer = photographer;
   album.photos = [];
   albumRepo.save(album);
+};
+
+export const getAlbumById = async (albumId: number): Promise<Album> => {
+  const album = await albumRepo.findOne({
+    relations: {
+      photos: {
+        ratings: {
+          user: true,
+        },
+        tags: true,
+      },
+      photographer: true,
+    },
+    where: {
+      id: albumId,
+    },
+  });
+
+  if (!album) {
+    throw new Error("Album not found");
+  }
+
+  return album;
 };

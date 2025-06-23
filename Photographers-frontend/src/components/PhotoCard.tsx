@@ -6,15 +6,17 @@ import {
   IconButton,
   Tooltip,
   Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import TagList from "./TagList";
 import { API_URL } from "../api";
-import { Delete, Edit } from "@mui/icons-material";
-import ConfirmationDialog from "../pages/ModalPopup";
+import { Delete, Edit, PhotoLibrary, MoreVert } from "@mui/icons-material";
 import Photo from "../model/Photo";
 import { useEffect, useState } from "react";
 import { CurrentUser } from "../service/AuthenticationService";
-import React from "react";
 import { addPhotoRating, updatePhotoRating } from "../service/RatingsApi";
 import StarRating from "./StarRating";
 import User from "../model/User";
@@ -24,6 +26,7 @@ export interface PhotoCardProps {
   setSelectedPhoto?: (photo: Photo | null) => void;
   setIsFormOpen?: (isOpen: boolean) => void;
   handleDeletePhoto?: (photoId: number) => void;
+  onAddToAlbum?: (photoId: number, photoTitle: string) => void;
 }
 
 export const PhotoCard = ({
@@ -31,6 +34,7 @@ export const PhotoCard = ({
   setSelectedPhoto,
   setIsFormOpen,
   handleDeletePhoto,
+  onAddToAlbum,
 }: PhotoCardProps) => {
   const [localPhoto, setLocalPhoto] = useState(photo);
   const [submitting, setSubmitting] = useState(false);
@@ -38,6 +42,42 @@ export const PhotoCard = ({
   const [averageRating, setAverageRating] = useState(0);
   const [usersWhoRated, setUsersWhoRated] = useState<User[]>([]);
   const [userRating, setUserRating] = useState(0);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const menuOpen = Boolean(anchorEl);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEditClick = () => {
+    if (setSelectedPhoto && setIsFormOpen) {
+      setSelectedPhoto(photo);
+      setIsFormOpen(true);
+    }
+    handleMenuClose();
+  };
+
+  const handleAddToAlbumClick = () => {
+    if (onAddToAlbum) {
+      onAddToAlbum(photo.id, photo.title);
+    }
+    handleMenuClose();
+  };
+
+  const handleDeleteClick = () => {
+    handleMenuClose();
+    if (window.confirm("Are you sure you want to delete this photo?")) {
+      if (handleDeletePhoto) {
+        handleDeletePhoto(photo.id);
+      }
+    }
+  };
   useEffect(() => {
     CurrentUser().then((user) => setUserId(user.id));
   }, []);
@@ -104,38 +144,10 @@ export const PhotoCard = ({
         {photo.description}
       </Typography>
       <TagList tags={photo.tags} />
-      <CardActions>
-        {setSelectedPhoto && setIsFormOpen && (
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedPhoto(photo);
-              setIsFormOpen(true);
-            }}
-          >
-            <Edit />
-          </IconButton>
-        )}
-        {handleDeletePhoto && (
-          <ConfirmationDialog
-            title="Delete Photographer"
-            description="Are you sure you want to delete this photographer?"
-            response={() => handleDeletePhoto(photo.id)}
-          >
-            {(onClick) => (
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClick();
-                }}
-              >
-                <Delete />
-              </IconButton>
-            )}
-          </ConfirmationDialog>
-        )}
-
-        <Box sx={{ mt: 2 }}>
+      <CardActions
+        sx={{ justifyContent: "space-between", alignItems: "flex-start" }}
+      >
+        <Box sx={{ flexGrow: 1 }}>
           <Typography variant="subtitle2" color="text.secondary">
             {averageRating !== null
               ? `Average Rating: ${averageRating.toFixed(2)} (${
@@ -143,7 +155,7 @@ export const PhotoCard = ({
                 } rating${localPhoto.ratings.length !== 1 ? "s" : ""})`
               : "No ratings yet"}
           </Typography>
-          <Box sx={{ mt: 2, mb: 1 }}>
+          <Box sx={{ mt: 1, mb: 1 }}>
             <Typography variant="body2" color="text.secondary">
               Your Rating:
             </Typography>
@@ -168,6 +180,48 @@ export const PhotoCard = ({
             </Box>
           )}
         </Box>
+
+        {/* Three dots menu */}
+        {(setSelectedPhoto || handleDeletePhoto || onAddToAlbum) && (
+          <Box>
+            <IconButton onClick={handleMenuClick} size="small" sx={{ mt: 1 }}>
+              <MoreVert />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={menuOpen}
+              onClose={handleMenuClose}
+              MenuListProps={{
+                "aria-labelledby": "photo-menu-button",
+              }}
+            >
+              {setSelectedPhoto && setIsFormOpen && (
+                <MenuItem onClick={handleEditClick}>
+                  <ListItemIcon>
+                    <Edit fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Edit</ListItemText>
+                </MenuItem>
+              )}
+              {onAddToAlbum && (
+                <MenuItem onClick={handleAddToAlbumClick}>
+                  <ListItemIcon>
+                    <PhotoLibrary fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Add to Album</ListItemText>
+                </MenuItem>
+              )}
+              {handleDeletePhoto && (
+                <MenuItem onClick={handleDeleteClick}>
+                  <ListItemIcon>
+                    <Delete fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Delete</ListItemText>
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
+        )}
       </CardActions>
     </Card>
   );

@@ -9,6 +9,10 @@ import {
   updatePhotographerController,
 } from "../controllers/photographers";
 import { photosRouter } from "./photos";
+import {
+  createAlbumController,
+  getAlbumsPhotographer,
+} from "../controllers/albums";
 
 export const photographersRouter = Router({
   mergeParams: true,
@@ -25,6 +29,11 @@ photographersRouter.put("/:id", updatePhotographerController);
 photographersRouter.delete("/:id", deletePhotographerController);
 
 photographersRouter.use("/:id/photos", hasRole("user"), photosRouter);
+
+// Get all albums for a photographer
+photographersRouter.get("/:id/albums", getAlbumsPhotographer);
+// Create a new album for a photographer
+photographersRouter.post("/:id/albums", createAlbumController);
 
 photographersRouter.post(
   "/:id/recommend/:recommendeeId",
