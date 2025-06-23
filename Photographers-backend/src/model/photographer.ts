@@ -9,6 +9,7 @@ import {
 import { Photo } from "./photo";
 import { User } from "./user";
 import { Album } from "./album";
+import { Comment } from "./comment";
 
 @Entity()
 export class Photographer {
@@ -45,4 +46,9 @@ export class Photographer {
 
   @OneToMany(() => Album, (a) => a.photos)
   albums: Album[];
+
+  @OneToMany(() => Comment, (comment) => comment.photographer, {
+    cascade: true,
+  })
+  comments: Comment[];
 }

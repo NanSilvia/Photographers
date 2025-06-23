@@ -2,7 +2,7 @@ import "reflect-metadata";
 import express, { Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import multer from "multer";
 import { faker } from "@faker-js/faker";
 import { AppDataSource } from "./databaseHelper/dataSource";
@@ -63,7 +63,7 @@ wss.on("connection", (ws) => {
   });
 });
 
-export const notifyClients = (type, payload) => {
+export const notifyClients = (type: string, payload: any) => {
   console.log("Notifying clients:", type, payload);
   console.log(connections);
   connections.forEach((client) => {

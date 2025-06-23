@@ -3,10 +3,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Photographer from "../model/Photographer";
 import Album from "../model/Album";
+import Comment from "../model/Comment";
 import "../styles/TextFieldStyle.css";
 
 import PhotographersApi from "../service/PhotographersApi";
 import AlbumsApi from "../service/AlbumsApi";
+import CommentsApi from "../service/CommentsApi";
+import WebSocketService from "../service/WebSocketService";
 import usePhotoStore from "../stores/PhotoStore";
 import Photo from "../model/Photo";
 import PhotoForm from "./PhotoForm";
@@ -15,6 +18,7 @@ import { PhotoCard } from "../components/PhotoCard";
 import AlbumsList from "../components/AlbumsList";
 import AddAlbumDialog from "../components/AddAlbumDialog";
 import AddPhotoToAlbumDialog from "../components/AddPhotoToAlbumDialog";
+import CommentsList from "../components/CommentsList";
 
 const Detail = () => {
   //const params = useParams();
@@ -66,6 +70,11 @@ const Detail = () => {
   } | null>(null);
   const [albumOperationLoading, setAlbumOperationLoading] = useState(false);
 
+  // Comments state
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [addingComment, setAddingComment] = useState(false);
+
   useEffect(() => {
     const loadPhotographer = async () => {
       try {
@@ -79,6 +88,8 @@ const Detail = () => {
             setPhotoStorePhotographer(photographer.id);
             // Load albums for this photographer
             loadAlbums(photographer.id);
+            // Load comments for this photographer
+            loadComments(photographer.id);
           } else {
             setError("Photographer not found");
           }
@@ -94,6 +105,36 @@ const Detail = () => {
     loadPhotographer();
   }, [params.id]);
 
+  // WebSocket connection for real-time comments
+  useEffect(() => {
+    if (!p) return;
+
+    const wsService = WebSocketService.getInstance();
+    wsService.connect();
+
+    // Handle new comments
+    const handleNewComment = (data: { photographerId: number; comment: Comment }) => {
+      if (data.photographerId === p.id) {
+        setComments(prev => [data.comment, ...prev]);
+      }
+    };
+
+    // Handle deleted comments
+    const handleDeletedComment = (data: { photographerId: number; commentId: number }) => {
+      if (data.photographerId === p.id) {
+        setComments(prev => prev.filter(comment => comment.id !== data.commentId));
+      }
+    };
+
+    wsService.on('comment_created', handleNewComment);
+    wsService.on('comment_deleted', handleDeletedComment);
+
+    return () => {
+      wsService.off('comment_created', handleNewComment);
+      wsService.off('comment_deleted', handleDeletedComment);
+    };
+  }, [p]);
+
   const loadAlbums = async (photographerId: number) => {
     try {
       setAlbumsLoading(true);
@@ -105,6 +146,18 @@ const Detail = () => {
       console.error("Failed to load albums:", err);
     } finally {
       setAlbumsLoading(false);
+    }
+  };
+
+  const loadComments = async (photographerId: number) => {
+    try {
+      setCommentsLoading(true);
+      const commentsData = await CommentsApi.getCommentsForPhotographer(photographerId);
+      setComments(commentsData);
+    } catch (err) {
+      console.error("Failed to load comments:", err);
+    } finally {
+      setCommentsLoading(false);
     }
   };
 
@@ -158,6 +211,29 @@ const Detail = () => {
       console.error("Failed to add photo to album:", err);
     } finally {
       setAlbumOperationLoading(false);
+    }
+  };
+
+  const handleAddComment = async (content: string) => {
+    if (!p) return;
+    
+    try {
+      setAddingComment(true);
+      // Don't update local state - WebSocket will handle it
+      await CommentsApi.createComment(p.id, content);
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+    } finally {
+      setAddingComment(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    try {
+      // Don't update local state - WebSocket will handle it
+      await CommentsApi.deleteComment(commentId);
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
     }
   };
 
@@ -285,6 +361,17 @@ const Detail = () => {
           </Grid>
         ))}
       </Grid>
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* Comments Section */}
+      <CommentsList
+        comments={comments}
+        onAddComment={handleAddComment}
+        onDeleteComment={handleDeleteComment}
+        loading={commentsLoading}
+        addingComment={addingComment}
+      />
 
       {/* Album Dialogs */}
       <AddAlbumDialog

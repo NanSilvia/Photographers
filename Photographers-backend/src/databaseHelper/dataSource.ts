@@ -11,6 +11,7 @@ import { Tag } from "../model/tag";
 import { Notification } from "../model/notification";
 import { Rating } from "../model/rating";
 import { Album } from "../model/album";
+import { Comment } from "../model/comment";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -30,6 +31,7 @@ export const AppDataSource = new DataSource({
     Notification,
     Rating,
     Album,
+    Comment,
   ],
   synchronize: true,
   logging: false,
